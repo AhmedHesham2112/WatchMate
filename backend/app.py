@@ -81,7 +81,7 @@ def register():
     if(user):
         return jsonify({"message": "User with this Email already exists"}), 201
     hashed_password = generate_password_hash(data['password'], method='pbkdf2:sha256')
-    users = Users(first_name = data['first_name'], last_name = data['last_name'], phone_no = data['phone_num'], email = data['email'], password_hash = hashed_password)
+    users = Users(first_name = data['first_name'], last_name = data['last_name'], email = data['email'], password_hash = hashed_password)
     db.session.add(users)
     db.session.commit()
     return jsonify({"message": "User registered successfully"}), 201

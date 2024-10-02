@@ -9,11 +9,11 @@ Base = declarative_base()
 class User(Base):
     __tablename__ = 'users'
     
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, primary_key=True, autoincrement=True)
     email = Column(String(255), nullable=False, unique=True)
     first_name = Column(String(255), nullable=False)
     last_name = Column(String(255), nullable=False)
-    password = Column(String(255), nullable=False)  # Store hashed passwords
+    password_hash = Column(String(255), nullable=False)  # Store hashed passwords
 
     # Relationships with favorite and watchlist movies
     favorites = relationship("FavoriteMovie", back_populates="user", cascade="all, delete-orphan")
@@ -25,7 +25,7 @@ class FavoriteMovie(Base):
     __tablename__ = 'favorite_movies'
     
     id = Column(Integer, primary_key=True, autoincrement=True)
-    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    user_id = Column(Integer, ForeignKey('users.user_id'), nullable=False)
     tmdb_movie_id = Column(Integer, nullable=False)  # TMDb movie ID
 
     # Relationship with user
@@ -42,7 +42,7 @@ class WatchlistMovie(Base):
     __tablename__ = 'watchlist_movies'
     
     id = Column(Integer, primary_key=True, autoincrement=True)
-    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    user_id = Column(Integer, ForeignKey('users.user_id'), nullable=False)
     tmdb_movie_id = Column(Integer, nullable=False)  # TMDb movie ID
 
     # Relationship with user
