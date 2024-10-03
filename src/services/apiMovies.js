@@ -7,7 +7,7 @@ const options = {
   },
 };
 
-export async function fetchPopularMovies({ page = 1 }) {
+export async function fetchPopularMovies(page = 1) {
   const response = await fetch(
     `https://api.themoviedb.org/3/movie/popular?language=en-US&page=${page}`,
     options,
@@ -16,11 +16,20 @@ export async function fetchPopularMovies({ page = 1 }) {
   return response.json();
 }
 
-export async function fetchTopRatedMovies() {
+export async function fetchTopRatedMovies(page = 1) {
   const response = await fetch(
-    "https://api.themoviedb.org/3/movie/top_rated?language=en-US&page=1",
+    `https://api.themoviedb.org/3/movie/top_rated?language=en-US&page=${page}`,
     options,
   );
   if (!response.ok) throw new Error("Failed to fetch top rated movies");
+  return response.json();
+}
+
+export async function fetchMovie(id) {
+  const response = await fetch(
+    `https://api.themoviedb.org/3/movie/${id}?language=en-US`,
+    options,
+  );
+  if (!response.ok) throw new Error("Failed to fetch the movie");
   return response.json();
 }

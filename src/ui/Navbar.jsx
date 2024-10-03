@@ -1,8 +1,6 @@
 import React, { useContext } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext";
-import "./style/Navbar.css";
-import logo from "./style/Pics/logo.png";
+import { AuthContext } from "../contexts/AuthContext";
 
 const Navbar = () => {
   const { authState, setAuthState } = useContext(AuthContext);
@@ -20,25 +18,19 @@ const Navbar = () => {
     navigate("/");
   };
   return authState.isAuthenticated ? (
-    <nav className="navbar">
-      <div className="logo-container">
-        <img src={logo} alt="Logo" className="logo" />
-      </div>
-      <div className="nav-links">
-        <Link to="/dashboard" className={getButtonClass("/dashboard")}>
-          Dashboard
+    <nav className="flex justify-between">
+      <Link to="/" className="m-3 self-start">
+        <div className="">Home</div>
+      </Link>
+      <div className="self-end">
+        <Link to="/topratedmovies" className="m-3">
+          TopRated
         </Link>
-        <Link
-          to="/create-auction"
-          className={getButtonClass("/create-auction")}
-        >
-          Create Auction
+        <Link to="/popularmovies" className="m-3">
+          Popular
         </Link>
-        <Link to="/auctions-page" className={getButtonClass("/auctions-page")}>
-          Auctions
-        </Link>
-        <Link to="/about" className={getButtonClass("/about")}>
-          About
+        <Link to="/watchlist" className="m-3">
+          Watchlist
         </Link>
         <button className="nav-button" onClick={handleLogout}>
           Logout
@@ -46,15 +38,22 @@ const Navbar = () => {
       </div>
     </nav>
   ) : (
-    <nav className="navbar">
-      <div className="logo-container">
-        <img src={logo} alt="Logo" className="logo" />
-      </div>
-      <div className="nav-links">
-        <Link to="/login" className={getButtonClass("/login")}>
+    <nav className="flex justify-between">
+      <Link to="/" className="m-3 self-start">
+        <div className="">Home</div>
+      </Link>
+
+      <div className="self-end">
+        <Link to="/topratedmovies" className="m-3">
+          TopRated
+        </Link>
+        <Link to="/popularmovies" className="m-3">
+          Popular
+        </Link>
+        <Link to="/login" className="m-3">
           Login
         </Link>
-        <Link to="/register" className={getButtonClass("/register")}>
+        <Link to="/register" className="m-3">
           Register
         </Link>
       </div>

@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
-import useTopRatedMovies from "../components/useTopRatedMovies";
+import usePopularMovies from "../components/usePopularMovies";
 import MovieCard from "../components/MovieCard";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Spinner from "../ui/Spinner";
 
-function TopRatedMovies() {
+function PopularMovies() {
   const [searchParams, setSearchParams] = useSearchParams();
   const page = parseInt(searchParams.get("page")) || 1; // Hook to manage query params
-  const { isLoading, error, topRatedMovies } = useTopRatedMovies(page); // Pass page to the hook
+  const { isLoading, error, popularMovies } = usePopularMovies(page); // Pass page to the hook
   const navigate = useNavigate();
 
   // Get the page from the query parameter or default to 1
@@ -31,15 +31,15 @@ function TopRatedMovies() {
 
   if (isLoading) return <Spinner />;
   if (error) return <p className="text-red-500">Error: {error.message}</p>;
-  if (!topRatedMovies?.results?.length) return <p>No movies found.</p>;
+  if (!popularMovies?.results?.length) return <p>No movies found.</p>;
 
   return (
     <>
-      <h1 className="m-4 text-xl font-semibold">Top Rated Movies</h1>
+      <h1 className="m-4 text-xl font-semibold">Popular Movies</h1>
       <div className="min-h-screen bg-gray-100 p-5">
         {/* Grid layout for displaying movies */}
         <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-          {topRatedMovies?.results?.map((movie) => (
+          {popularMovies?.results?.map((movie) => (
             <MovieCard key={movie.id} movie={movie} />
           ))}
         </div>
@@ -70,4 +70,4 @@ function TopRatedMovies() {
   );
 }
 
-export default TopRatedMovies;
+export default PopularMovies;

@@ -1,4 +1,4 @@
-import Header from "./Header";
+import Navbar from "./Navbar";
 import { Outlet, useNavigation } from "react-router-dom";
 import Spinner from "./Spinner";
 import Footer from "./Footer";
@@ -9,7 +9,7 @@ function AppLayout() {
 
   return (
     <div className="grid h-screen w-full grid-rows-[auto_1fr_auto]">
-      <Header />
+      <Navbar />
       {isLoading && <Spinner />}
       <div className="overflow-x-hidden">
         <main className="mx-auto max-w-[90%]">

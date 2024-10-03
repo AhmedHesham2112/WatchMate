@@ -12,7 +12,7 @@ function MovieList({ categoryFetch, isLoading }) {
       ) : (
         <div
           ref={listRef}
-          className="scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-300 flex space-x-5 overflow-x-auto px-10"
+          className="flex space-x-5 overflow-x-auto overflow-y-hidden px-10 scrollbar-thin scrollbar-track-gray-300 scrollbar-thumb-gray-700"
         >
           {categoryFetch.results.map((movie) => (
             <MovieCard key={movie.id} movie={movie} />
