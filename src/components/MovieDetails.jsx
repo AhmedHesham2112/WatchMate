@@ -12,7 +12,7 @@ function MovieDetails() {
 
   return (
     <div className="flex flex-col items-center justify-center px-5 py-10">
-      <div className="w-full max-w-4xl overflow-hidden rounded-lg bg-white shadow-lg">
+      <div className="bg-gray-950shadow-lg w-full max-w-4xl overflow-hidden rounded-lg border border-gray-400 bg-opacity-60">
         <div className="grid grid-cols-1 gap-6 p-6 md:grid-cols-3">
           {/* Movie Poster */}
           <div className="col-span-1">
@@ -27,25 +27,23 @@ function MovieDetails() {
           <div className="col-span-2 flex flex-col justify-between">
             <div>
               <h1 className="mb-4 text-3xl font-bold">{movieDetails.title}</h1>
-              <p className="mb-2 text-lg text-gray-600">
+              <p className="mb-2 text-lg">
                 <span className="font-semibold">Release Date: </span>
                 {movieDetails.release_date}
               </p>
-              <p className="mb-4 text-lg text-gray-600">
+              <p className="mb-4 text-lg">
                 <span className="font-semibold">Rating: </span>
                 {movieDetails.vote_average}/10
               </p>
-              <p className="mb-6 leading-relaxed text-gray-700">
-                {movieDetails.overview}
-              </p>
+              <p className="mb-6 leading-relaxed">{movieDetails.overview}</p>
             </div>
 
             <div className="flex justify-between">
-              <p className="text-lg text-gray-600">
+              <p className="text-lg">
                 <span className="font-semibold">Runtime: </span>
                 {movieDetails.runtime} minutes
               </p>
-              <p className="text-lg text-gray-600">
+              <p className="text-lg">
                 <span className="font-semibold">Genres: </span>
                 {movieDetails.genres.map((genre) => genre.name).join(", ")}
               </p>

@@ -8,10 +8,10 @@ function AppLayout() {
   const isLoading = navigation.state === "loading";
 
   return (
-    <div className="grid h-screen w-full grid-rows-[auto_1fr_auto]">
+    <div className="grid h-screen w-full grid-rows-[auto_1fr_auto] bg-gradient-to-br from-black via-red-950 to-black text-white">
       <Navbar />
       {isLoading && <Spinner />}
-      <div className="overflow-x-hidden">
+      <div className="overflow-x-hidden scrollbar">
         <main className="mx-auto max-w-[90%]">
           <Outlet />
         </main>

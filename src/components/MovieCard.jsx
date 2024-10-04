@@ -12,7 +12,7 @@ function MovieCard({ movie }) {
   const isInWatchlist = watchlist.some((item) => item.id === movie.id);
 
   return (
-    <div className="m-2 min-w-[200px] max-w-[200px] rounded-lg border border-gray-200 p-2 shadow-lg transition-transform hover:scale-105">
+    <div className="m-2 min-w-[200px] max-w-[200px] rounded-lg border border-gray-400 bg-gray-900 bg-opacity-60 p-2 shadow-lg transition-transform hover:scale-105">
       <Link to={`/movie/${movie.id}`}>
         <img
           src={moviePoster}
@@ -40,7 +40,7 @@ function MovieCard({ movie }) {
         ) : (
           <button
             onClick={() => addToWatchlist(movie)}
-            className="flex items-center gap-1 text-gray-600"
+            className="flex items-center gap-1 text-gray-400"
           >
             <FaRegBookmark /> Add
           </button>

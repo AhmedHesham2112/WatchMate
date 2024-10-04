@@ -2,6 +2,7 @@ import React, { useState, useContext } from "react";
 import { loginUser } from "../services/auth";
 import { AuthContext } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import Button from "../ui/Button";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -44,27 +45,30 @@ function Login() {
 
   return (
     <div>
-      <form onSubmit={handleSubmit}>
+      <form
+        onSubmit={handleSubmit}
+        className="flex flex-col items-center justify-center rounded-lg border border-gray-400 px-5 py-10"
+      >
         <fieldset className="flex flex-col gap-5">
-          <h2>Login</h2>
-          <div>
+          <h2 className="mb-5 text-center text-2xl font-bold">Login</h2>
+          <div className="flex justify-between">
             <label>
               Email address <sup>*</sup>
             </label>
             <input
-              className="ml-3 border-2"
+              className="input ml-3 border-2 text-black"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Email address"
               required
             />
           </div>
-          <div>
+          <div className="flex justify-between">
             <label>
               Password <sup>*</sup>
             </label>
             <input
-              className="ml-3 border-2"
+              className="input ml-3 border-2 text-black"
               value={password.value}
               type="password"
               onChange={(e) =>
@@ -75,9 +79,7 @@ function Login() {
               required
             />
           </div>
-          <button type="submit" className="border-4">
-            Login
-          </button>
+          <Button type="primary">Login</Button>
         </fieldset>
       </form>
     </div>

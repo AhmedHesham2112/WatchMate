@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 @layer components {
+  .input {
+    @apply rounded-full border border-stone-200 px-3 py-1.5 text-sm transition-all duration-300 placeholder:text-stone-400 focus:outline-none focus:ring focus:ring-blue-400 md:px-4 md:py-2;
+  }
   .spinner {
     width: 50px;
     aspect-ratio: 1;
@@ -15,11 +18,25 @@
       transform: rotate(1turn);
     }
   }
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;
+}
+
+@layer utilities {
+  .scrollbar::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
   }
-  .scrollbar-hide {
-    -ms-overflow-style: none; /* IE and Edge */
-    scrollbar-width: none; /* Firefox */
+
+  .scrollbar::-webkit-scrollbar-track {
+    border-radius: 100vh;
+    background: #212122;
+  }
+
+  .scrollbar::-webkit-scrollbar-thumb {
+    background: #9da4b0;
+    border-radius: 100vh;
+  }
+
+  .scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #434347;
   }
 }

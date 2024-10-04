@@ -3,6 +3,7 @@ import useTopRatedMovies from "../components/useTopRatedMovies";
 import MovieCard from "../components/MovieCard";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Spinner from "../ui/Spinner";
+import Button from "../ui/Button";
 
 function TopRatedMovies() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -36,7 +37,7 @@ function TopRatedMovies() {
   return (
     <>
       <h1 className="m-4 text-xl font-semibold">Top Rated Movies</h1>
-      <div className="min-h-screen bg-gray-100 p-5">
+      <div className="min-h-screen p-5">
         {/* Grid layout for displaying movies */}
         <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
           {topRatedMovies?.results?.map((movie) => (
@@ -46,24 +47,17 @@ function TopRatedMovies() {
 
         {/* Pagination controls at the bottom */}
         <div className="mt-8 flex items-center justify-center gap-4">
-          <button
+          <Button
             onClick={handlePrevPage}
             disabled={page === 1}
-            className={`${
-              page === 1
-                ? "cursor-not-allowed bg-gray-300 text-gray-500"
-                : "bg-blue-500 text-white hover:bg-blue-700"
-            } rounded px-4 py-2`}
+            type={`${page === 1 ? "disabled" : "primary"}`}
           >
             Previous Page
-          </button>
+          </Button>
           <span className="text-lg font-semibold">Page {page}</span>
-          <button
-            onClick={handleNextPage}
-            className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-700"
-          >
+          <Button onClick={handleNextPage} type="primary">
             Next Page
-          </button>
+          </Button>
         </div>
       </div>
     </>

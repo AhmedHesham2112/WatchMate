@@ -18,7 +18,7 @@ const Navbar = () => {
     navigate("/");
   };
   return authState.isAuthenticated ? (
-    <nav className="flex justify-between">
+    <nav className="mb-5 flex justify-between">
       <Link to="/" className="m-3 self-start">
         <div className="">Home</div>
       </Link>
@@ -38,7 +38,7 @@ const Navbar = () => {
       </div>
     </nav>
   ) : (
-    <nav className="flex justify-between">
+    <nav className="mb-5 flex justify-between">
       <Link to="/" className="m-3 self-start">
         <div className="">Home</div>
       </Link>

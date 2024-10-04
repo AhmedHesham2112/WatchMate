@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 import RegisterContext from "../contexts/RegisterContext";
 import { registerUser } from "../services/auth";
 import { useNavigate } from "react-router-dom";
+import Button from "../ui/Button";
 
 function Register() {
   const { state, dispatch } = useContext(RegisterContext);
@@ -81,15 +82,18 @@ function Register() {
 
   return (
     <div>
-      <form onSubmit={handleSubmit}>
+      <form
+        onSubmit={handleSubmit}
+        className="flex flex-col items-center justify-center rounded-lg border border-gray-400 px-5 py-10"
+      >
         <fieldset className="flex flex-col gap-5">
-          <h2>Sign Up</h2>
-          <div>
+          <h2 className="mb-5 text-center text-2xl font-bold">Sign Up</h2>
+          <div className="flex justify-between">
             <label>
               First name <sup>*</sup>
             </label>
             <input
-              className="ml-3 border-2"
+              className="input ml-3 border-2 text-black"
               value={firstName}
               onChange={(e) =>
                 dispatch({
@@ -102,10 +106,12 @@ function Register() {
               required
             />
           </div>
-          <div>
-            <label>Last name</label>
+          <div className="flex justify-between">
+            <label>
+              Last name <sup>*</sup>
+            </label>
             <input
-              className="ml-3 border-2"
+              className="input ml-3 border-2 text-black"
               value={lastName}
               onChange={(e) =>
                 dispatch({
@@ -118,12 +124,12 @@ function Register() {
               required
             />
           </div>
-          <div>
+          <div className="flex justify-between">
             <label>
               Email address <sup>*</sup>
             </label>
             <input
-              className="ml-3 border-2"
+              className="input ml-3 border-2 text-black"
               value={email}
               onChange={(e) =>
                 dispatch({
@@ -137,12 +143,12 @@ function Register() {
             />
             {emailError && <EmailErrorMessage />}
           </div>
-          <div>
+          <div className="flex justify-between">
             <label>
               Password <sup>*</sup>
             </label>
             <input
-              className="ml-3 border-2"
+              className="input ml-3 border-2 text-black"
               value={password}
               type="password"
               onChange={(e) =>
@@ -157,12 +163,12 @@ function Register() {
             />
             {passwordError && <PasswordErrorMessage />}
           </div>
-          <div>
+          <div className="flex justify-between">
             <label>
               Confirm Password <sup>*</sup>
             </label>
             <input
-              className="ml-3 border-2"
+              className="input ml-3 border-2 text-black"
               value={confirmPassword}
               type="password"
               onChange={(e) =>
@@ -178,9 +184,7 @@ function Register() {
             {confirmPasswordError && <ConfirmPasswordErrorMessage />}
           </div>
 
-          <button type="submit" className="border-4">
-            Create account
-          </button>
+          <Button type="primary">Create account</Button>
         </fieldset>
       </form>
     </div>
