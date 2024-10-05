@@ -9,6 +9,7 @@ from flask import Response
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from sqlalchemy import not_, desc, JSON
+from sqlalchemy.ext.mutable import MutableList
 
 
 app = Flask(__name__)
@@ -32,8 +33,8 @@ class Users(db.Model, UserMixin):
     password_hash = db.Column(db.String(255), nullable=False)
     first_name = db.Column(db.String(255), nullable=False)
     last_name = db.Column(db.String(255), nullable=False)
-    favorite_movie_ids = db.Column(JSON)  # Store list of favorite movie IDs
-    watchlist_movie_ids = db.Column(JSON)
+    favorite_movie_ids = db.Column(MutableList.as_mutable(JSON), default=[])  # Store list of favorite movie IDs
+    watchlist_movie_ids = db.Column(MutableList.as_mutable(JSON), default=[])
 
 
     def get_id(self):
@@ -74,10 +75,14 @@ def login():
 @app.route("/atf", methods=['POST'])
 def add_to_fav():
     data = request.get_json()
+    print("data................", data)
     user = Users.query.filter_by(email=data['user_email']).first()
 
     if user:
+        if user.favorite_movie_ids is None:
+            user.favorite_movie_ids = []
         movie_id = data['movie_id']
+        
         
         # Check if movie is already in favorites
         if movie_id not in user.favorite_movie_ids:
@@ -96,6 +101,8 @@ def remove_from_fav():
     user = Users.query.filter_by(email=data['user_email']).first()
 
     if user:
+        if user.favorite_movie_ids is None:
+            user.favorite_movie_ids = []
         movie_id = data['movie_id']
         
         # Check if movie is in favorites
@@ -115,6 +122,8 @@ def add_to_watchlist():
     user = Users.query.filter_by(email=data['user_email']).first()
 
     if user:
+        if user.watchlist_movie_ids is None:
+            user.watchlist_movie_ids = []
         movie_id = data['movie_id']
         
         # Check if movie is already in watchlist
@@ -134,6 +143,8 @@ def remove_from_watchlist():
     user = Users.query.filter_by(email=data['user_email']).first()
 
     if user:
+        if user.watchlist_movie_ids is None:
+            user.watchlist_movie_ids = []
         movie_id = data['movie_id']
         
         # Check if movie is in watchlist
@@ -146,7 +157,35 @@ def remove_from_watchlist():
     else:
         return jsonify({"message": "User not found"}), 404
 
+@app.route("/gf", methods=['GET'])
+def get_fav():
+    data = request.get_json()
+    user = Users.query.filter_by(email=data['user_email']).first()
+
+    if user:
+        if (user.favorite_movie_ids is None) or (len(user.favorite_movie_ids) == 0):
+            user.favorite_movie_ids = []
+            return jsonify({"message": "Failure"}), 200
+
+        return jsonify({"message": "Success", "result" : user.favorite_movie_ids}), 200
+        
+    else:
+        return jsonify({"message": "User not found"}), 404
     
+@app.route("/gwl", methods=['GET'])
+def get_watchlist():
+    data = request.get_json()
+    user = Users.query.filter_by(email=data['user_email']).first()
+
+    if user:
+        if (user.watchlist_movie_ids is None) or (len(user.watchlist_movie_ids) == 0):
+            user.watchlist_movie_ids = []
+            return jsonify({"message": "Failure"}), 200
+
+        return jsonify({"message": "Success", "result" : user.watchlist_movie_ids}), 200
+        
+    else:
+        return jsonify({"message": "User not found"}), 404
 
 
 if __name__ == '__main__':

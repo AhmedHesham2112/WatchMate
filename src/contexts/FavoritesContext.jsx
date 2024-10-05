@@ -57,7 +57,10 @@ export function FavoritesProvider({ children }) {
     async function getFavorites() {
       dispatch({ type: "loading" });
       try {
-        const ids = await apiGetFavoritesMovies(); // Fetch favorite movie IDs
+        const user_email = localStorage.getItem("userEmail");
+        const user_data = { user_email: user_email }
+        const ids = await apiGetFavoritesMovies(user_data); // Fetch favorite movie IDs
+        console.log(ids)
         const movies = await Promise.all(ids.map((id) => fetchMovie(id)));
         dispatch({ type: "favorites/loaded", payload: movies });
       } catch (error) {
@@ -74,7 +77,11 @@ export function FavoritesProvider({ children }) {
   async function addFavorites(movie) {
     dispatch({ type: "loading" });
     try {
-      await apiAddToFavorites({ movieId: movie.id });
+      const user_email = localStorage.getItem("userEmail");
+      const movie_data = { movie_id: movie.id, user_email: user_email }
+      console.log(movie_data)
+      const response = await apiAddToFavorites(movie_data);
+      console.log(response)
       dispatch({ type: "favorites/add", payload: movie });
     } catch {
       dispatch({
@@ -87,7 +94,11 @@ export function FavoritesProvider({ children }) {
   async function removeFavorites(id) {
     dispatch({ type: "loading" });
     try {
-      await apiRemoveFromFavorites({ movieId: id });
+      const user_email = localStorage.getItem("userEmail");
+      const movie_data = { movie_id: movie.id, user_email: user_email }
+      console.log(movie_data)
+      const response = await apiRemoveFromFavorites(movie_data);
+      console.log(response)
       dispatch({ type: "favorites/remove", payload: id });
     } catch {
       dispatch({
