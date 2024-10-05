@@ -8,7 +8,7 @@ import { AuthContext } from "../contexts/AuthContext";
 function MovieCard({ movie }) {
   const { authState, setAuthState } = useContext(AuthContext);
   const { addToWatchlist, removeFromWatchlist, watchlist } = useWatchlist();
-  const { addToFavorites, removeFromFavorites, favorites } = useFavorites();
+  const { addFavorites, removeFavorites, favorites } = useFavorites();
 
   const moviePoster = `https://image.tmdb.org/t/p/w500${movie.poster_path}`;
 
@@ -18,7 +18,7 @@ function MovieCard({ movie }) {
 
   return (
     <div className="m-2 min-w-[200px] max-w-[200px] rounded-lg border border-gray-400 bg-gray-900 bg-opacity-60 p-2 shadow-lg transition-transform hover:scale-105">
-      <Link to={`/movie/${movie.id}`}>z
+      <Link to={`/movie/${movie.id}`}>
         <img
           src={moviePoster}
           alt={movie.title}
@@ -56,14 +56,14 @@ function MovieCard({ movie }) {
           <div className="mt-2 flex justify-center gap-2">
             {isInFavorites ? (
               <button
-                onClick={() => removeFromFavorites(movie.id)}
+                onClick={() => removeFavorites(movie.id)}
                 className="flex items-center gap-1 text-red-500"
               >
                 <FaHeart /> Remove from favorites
               </button>
             ) : (
               <button
-                onClick={() => addToFavorites(movie)}
+                onClick={() => addFavorites(movie)}
                 className="flex items-center gap-1 text-gray-400"
               >
                 <FaRegHeart /> Add to favorites

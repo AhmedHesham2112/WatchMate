@@ -141,8 +141,8 @@ function Register() {
               placeholder="Email address"
               required
             />
-            {emailError && <EmailErrorMessage />}
           </div>
+          {emailError && <EmailErrorMessage />}
           <div className="flex justify-between">
             <label>
               Password <sup>*</sup>
@@ -161,8 +161,8 @@ function Register() {
               placeholder="Password"
               required
             />
-            {passwordError && <PasswordErrorMessage />}
           </div>
+          {passwordError && <PasswordErrorMessage />}
           <div className="flex justify-between">
             <label>
               Confirm Password <sup>*</sup>
@@ -181,8 +181,8 @@ function Register() {
               placeholder="Confirm Password"
               required
             />
-            {confirmPasswordError && <ConfirmPasswordErrorMessage />}
           </div>
+          {confirmPasswordError && <ConfirmPasswordErrorMessage />}
 
           <Button type="primary">Create account</Button>
         </fieldset>

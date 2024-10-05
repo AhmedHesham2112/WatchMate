@@ -9,7 +9,7 @@ export const loginUser = async (loginData) =>
 export const addToFavorites = async (movieData) =>
   request("/atf", "POST", movieData);
 
-export const removeToFavorites = async (movieData) =>
+export const removeFromFavorites = async (movieData) =>
   request("/rff", "POST", movieData);
 
 export const addToWatchlist = async (movieData) =>
@@ -23,4 +23,3 @@ export const getFavoritesMovies = async (userData) =>
 
 export const getWatchlistMovies = async (userData) =>
   request("/gwl", "GET", userData);
-

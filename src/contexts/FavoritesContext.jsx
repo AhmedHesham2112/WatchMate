@@ -1,37 +1,110 @@
-import React, { createContext, useState, useContext } from "react";
-import { fetchMovie } from "../services/apiMovies"; // Assuming your fetchMovie function is in this file
+import React, { createContext, useReducer, useContext, useEffect } from "react";
+import { fetchMovie } from "../services/apiMovies";
+import {
+  addToFavorites as apiAddToFavorites,
+  removeFromFavorites as apiRemoveFromFavorites,
+  getFavoritesMovies as apiGetFavoritesMovies,
+} from "../services/auth";
 
 const FavoritesContext = createContext();
 
+const initialState = {
+  favorites: [],
+  isLoading: false,
+  error: "",
+};
+
+function reducer(state, action) {
+  switch (action.type) {
+    case "loading":
+      return { ...state, isLoading: true };
+    case "favorites/loaded":
+      return {
+        ...state,
+        isLoading: false,
+        favorites: action.payload,
+      };
+    case "favorites/add":
+      return {
+        ...state,
+        favorites: [...state.favorites, action.payload],
+      };
+    case "favorites/remove":
+      return {
+        ...state,
+        favorites: state.favorites.filter(
+          (favorite) => favorite.id !== action.payload,
+        ),
+      };
+    case "rejected":
+      return {
+        ...state,
+        isLoading: false,
+        error: action.payload,
+      };
+    default:
+      throw new Error("Unknown action type");
+  }
+}
+
 export function FavoritesProvider({ children }) {
-  // Only store movie IDs in the state
-  const [favorites, setFavorites] = useState([]);
+  const [{ favorites, isLoading, error }, dispatch] = useReducer(
+    reducer,
+    initialState,
+  );
 
-  // Add movie ID to the favorites
-  const addToFavorites = (movie) => {
-    setFavorites((prev) => [...prev, movie.id]);
-  };
+  useEffect(() => {
+    async function getFavorites() {
+      dispatch({ type: "loading" });
+      try {
+        const ids = await apiGetFavoritesMovies(); // Fetch favorite movie IDs
+        const movies = await Promise.all(ids.map((id) => fetchMovie(id)));
+        dispatch({ type: "favorites/loaded", payload: movies });
+      } catch (error) {
+        dispatch({
+          type: "rejected",
+          payload: "Failed to load favorites.",
+        });
+      }
+    }
 
-  // Remove movie ID from the favorites
-  const removeFromFavorites = (id) => {
-    setFavorites((prev) => prev.filter((movieId) => movieId !== id));
-  };
+    getFavorites(); // Fetch favorites when the component mounts
+  }, []);
 
-  // Fetch all movies in the favorites based on their IDs
-  const getFavoritesMovies = async () => {
-    const movies = await Promise.all(
-      favorites.map((id) => fetchMovie(id)), // Fetch each movie by its ID
-    );
-    return movies; // This returns an array of movie objects
-  };
+  async function addFavorites(movie) {
+    dispatch({ type: "loading" });
+    try {
+      await apiAddToFavorites({ movieId: movie.id });
+      dispatch({ type: "favorites/add", payload: movie });
+    } catch {
+      dispatch({
+        type: "rejected",
+        payload: "Failed to add the movie to favorites.",
+      });
+    }
+  }
+
+  async function removeFavorites(id) {
+    dispatch({ type: "loading" });
+    try {
+      await apiRemoveFromFavorites({ movieId: id });
+      dispatch({ type: "favorites/remove", payload: id });
+    } catch {
+      dispatch({
+        type: "rejected",
+        payload: "Failed to remove the movie from favorites.",
+      });
+    }
+  }
 
   return (
     <FavoritesContext.Provider
       value={{
         favorites,
-        addToFavorites,
-        removeFromFavorites,
-        getFavoritesMovies,
+        isLoading,
+        error,
+        addFavorites,
+        removeFavorites,
       }}
     >
       {children}
