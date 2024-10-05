@@ -8,7 +8,7 @@ from flask import Response
 
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from sqlalchemy import not_, desc
+from sqlalchemy import not_, desc, JSON
 
 
 app = Flask(__name__)
@@ -32,8 +32,8 @@ class Users(db.Model, UserMixin):
     password_hash = db.Column(db.String(255), nullable=False)
     first_name = db.Column(db.String(255), nullable=False)
     last_name = db.Column(db.String(255), nullable=False)
-    favourite_movies = db.relationship("FavoriteMovie", back_populates="user", cascade="all, delete-orphan")
-    watchlist_movies = db.relationship("WatchlistMovie", back_populates="user", cascade="all, delete-orphan")
+    favorite_movie_ids = db.Column(JSON)  # Store list of favorite movie IDs
+    watchlist_movie_ids = db.Column(JSON)
 
 
     def get_id(self):
@@ -42,31 +42,6 @@ class Users(db.Model, UserMixin):
     def __repr__(self):
         return f"User('{self.first_name}', '{self.last_name}', '{self.email}')"
     
-class FavoriteMovie(db.Model, UserMixin):
-    __tablename__ = 'favorite_movies'
-    fav_id = db.Column(db.Integer, primary_key=True)
-    
-    tmdb_movie_id = db.Column(db.String(255), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
-
-    # Relationship back to the user
-    user = db.relationship("Users", back_populates="favourite_movies")
-
-    def __repr__(self):
-        return f"FavoriteMovie('{self.tmdb_movie_id}', user_id={self.user_id})"
-    
-    
-class WatchlistMovie(db.Model, UserMixin):
-    __tablename__ = 'watchlist_movies'
-    watchlist_id = db.Column(db.Integer, primary_key=True)
-    tmdb_movie_id = db.Column(db.String(255), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
-
-    # Relationship back to the user
-    user = db.relationship("Users", back_populates="watchlist_movies")
-
-    def __repr__(self):
-        return f"WatchlistMovie('{self.tmdb_movie_id}', user_id={self.user_id})"
     
 
 @login_manager.user_loader
@@ -95,6 +70,83 @@ def login():
         return jsonify({"message": "Login successful"}), 200
     else:
         return jsonify({"message": "Login Unsuccessful. Please check email and password"}), 401
+    
+@app.route("/atf", methods=['POST'])
+def add_to_fav():
+    data = request.get_json()
+    user = Users.query.filter_by(email=data['user_email']).first()
+
+    if user:
+        movie_id = data['movie_id']
+        
+        # Check if movie is already in favorites
+        if movie_id not in user.favorite_movie_ids:
+            user.favorite_movie_ids.append(movie_id)
+            db.session.commit()  # Save the updated list to the database
+            return jsonify({"message": "Movie added to favorites"}), 200
+        else:
+            return jsonify({"message": "Movie is already in favorites"}), 400
+    else:
+        return jsonify({"message": "User not found"}), 404
+
+
+@app.route("/rff", methods=['POST'])
+def remove_from_fav():
+    data = request.get_json()
+    user = Users.query.filter_by(email=data['user_email']).first()
+
+    if user:
+        movie_id = data['movie_id']
+        
+        # Check if movie is in favorites
+        if movie_id in user.favorite_movie_ids:
+            user.favorite_movie_ids.remove(movie_id)
+            db.session.commit()  # Save the updated list to the database
+            return jsonify({"message": "Movie removed from favorites"}), 200
+        else:
+            return jsonify({"message": "Movie not found in favorites"}), 400
+    else:
+        return jsonify({"message": "User not found"}), 404
+
+
+@app.route("/atwl", methods=['POST'])
+def add_to_watchlist():
+    data = request.get_json()
+    user = Users.query.filter_by(email=data['user_email']).first()
+
+    if user:
+        movie_id = data['movie_id']
+        
+        # Check if movie is already in watchlist
+        if movie_id not in user.watchlist_movie_ids:
+            user.watchlist_movie_ids.append(movie_id)
+            db.session.commit()  # Save the updated list to the database
+            return jsonify({"message": "Movie added to watchlist"}), 200
+        else:
+            return jsonify({"message": "Movie is already in watchlist"}), 400
+    else:
+        return jsonify({"message": "User not found"}), 404
+
+
+@app.route("/rfwl", methods=['POST'])
+def remove_from_watchlist():
+    data = request.get_json()
+    user = Users.query.filter_by(email=data['user_email']).first()
+
+    if user:
+        movie_id = data['movie_id']
+        
+        # Check if movie is in watchlist
+        if movie_id in user.watchlist_movie_ids:
+            user.watchlist_movie_ids.remove(movie_id)
+            db.session.commit()  # Save the updated list to the database
+            return jsonify({"message": "Movie removed from watchlist"}), 200
+        else:
+            return jsonify({"message": "Movie not found in watchlist"}), 400
+    else:
+        return jsonify({"message": "User not found"}), 404
+
+    
 
 
 if __name__ == '__main__':

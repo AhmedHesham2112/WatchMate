@@ -18,7 +18,7 @@ function MovieCard({ movie }) {
 
   return (
     <div className="m-2 min-w-[200px] max-w-[200px] rounded-lg border border-gray-400 bg-gray-900 bg-opacity-60 p-2 shadow-lg transition-transform hover:scale-105">
-      <Link to={`/movie/${movie.id}`}>
+      <Link to={`/movie/${movie.id}`}>z
         <img
           src={moviePoster}
           alt={movie.title}
