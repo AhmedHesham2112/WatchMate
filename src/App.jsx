@@ -19,6 +19,8 @@ import { RegisterProvider } from "./contexts/RegisterContext";
 import TopRatedMovies from "./pages/TopRatedMovies";
 import PopularMovies from "./pages/PopularMovies";
 import MovieDetails from "./components/MovieDetails";
+import { FavoritesProvider } from "./contexts/FavoritesContext";
+import Favorites from "./pages/Favorites";
 
 const queryClient = new QueryClient();
 
@@ -52,6 +54,14 @@ const router = createBrowserRouter([
           </PrivateRoute>
         ),
       },
+      {
+        path: "/favorites",
+        element: (
+          <PrivateRoute>
+            <Favorites />
+          </PrivateRoute>
+        ),
+      },
     ],
   },
 ]);
@@ -60,9 +70,11 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <WatchlistProvider>
-          <RouterProvider router={router} />
-        </WatchlistProvider>
+        <FavoritesProvider>
+          <WatchlistProvider>
+            <RouterProvider router={router} />
+          </WatchlistProvider>
+        </FavoritesProvider>
       </AuthProvider>
     </QueryClientProvider>
   );

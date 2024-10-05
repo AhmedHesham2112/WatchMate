@@ -32,6 +32,9 @@ const Navbar = () => {
         <Link to="/watchlist" className="m-3">
           Watchlist
         </Link>
+        <Link to="/favorites" className="m-3">
+          Favorites
+        </Link>
         <button className="nav-button" onClick={handleLogout}>
           Logout
         </button>
