@@ -5,6 +5,7 @@ import {
   removeFromWatchlist as apiRemoveFromWatchlist,
   getWatchlistMovies as apiGetWatchlistMovies,
 } from "../services/auth";
+import { AuthContext } from "./AuthContext";
 
 const WatchlistContext = createContext();
 
@@ -53,6 +54,7 @@ function reducer(state, action) {
 }
 
 export function WatchlistProvider({ children }) {
+  const { authState } = useContext(AuthContext);
   const [{ watchlist, isLoading, error }, dispatch] = useReducer(
     reducer,
     initialState,
@@ -64,7 +66,8 @@ export function WatchlistProvider({ children }) {
       try {
         const user_email = localStorage.getItem("userEmail");
         const user_data = { user_email: user_email };
-        const ids = await apiGetWatchlistMovies(user_data); // Check if this request returns correct data
+        const ids = await apiGetWatchlistMovies(user_data);
+        console.log("Fetched movie IDs:", ids); // Log movie IDs for debugging
         const movies = await Promise.all(ids.map((id) => fetchMovie(id)));
         dispatch({ type: "watchlist/loaded", payload: movies });
       } catch (error) {
@@ -76,8 +79,10 @@ export function WatchlistProvider({ children }) {
       }
     }
 
-    getWatchlist(); // Fetch watchlist when the component mounts
-  }, []);
+    if (authState.isAuthenticated) {
+      getWatchlist();
+    }
+  }, [authState.isAuthenticated]); // Re-run the effect only when authState changes
 
   async function addWatchlist(movie) {
     dispatch({ type: "loading" });
