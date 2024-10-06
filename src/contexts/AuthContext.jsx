@@ -4,19 +4,19 @@ export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [authState, setAuthState] = useState({
-    isAuthenticated: false,
-    token: null,
-    email: null,
+    isAuthenticated: localStorage.getItem('access_token') ? true : false,
+    token: localStorage.getItem('access_token'),
+
   });
 
   useEffect(() => {
-    const token = localStorage.getItem("authToken");
-    const email = localStorage.getItem("userEmail");
+    const token = localStorage.getItem('access_token');
 
-    if (token && email) {
-      setAuthState({ isAuthenticated: true, token, email });
+
+    if (token) {
+      setAuthState({ isAuthenticated: true, token });
     } else {
-      setAuthState({ isAuthenticated: false, token: null, email: null });
+      setAuthState({ isAuthenticated: false, token: null });
     }
   }, []);
 

@@ -64,11 +64,10 @@ export function WatchlistProvider({ children }) {
     async function getWatchlist() {
       dispatch({ type: "loading" });
       try {
-        const user_email = localStorage.getItem("userEmail");
-        const user_data = { user_email: user_email };
-        const ids = await apiGetWatchlistMovies(user_data);
+
+        const ids = await apiGetWatchlistMovies();
         console.log("Fetched movie IDs:", ids); // Log movie IDs for debugging
-        const movies = await Promise.all(ids.map((id) => fetchMovie(id)));
+        const movies = await Promise.all(ids.result.map((id) => fetchMovie(id)));
         dispatch({ type: "watchlist/loaded", payload: movies });
       } catch (error) {
         console.error("Error fetching watchlist:", error);
@@ -87,8 +86,8 @@ export function WatchlistProvider({ children }) {
   async function addWatchlist(movie) {
     dispatch({ type: "loading" });
     try {
-      const user_email = localStorage.getItem("userEmail");
-      const movie_data = { movie_id: movie.id, user_email: user_email };
+
+      const movie_data = { movie_id: movie.id };
       console.log(movie_data);
       const response = await apiAddToWatchlist(movie_data);
       console.log(response);
@@ -104,8 +103,8 @@ export function WatchlistProvider({ children }) {
   async function removeWatchlist(id) {
     dispatch({ type: "loading" });
     try {
-      const user_email = localStorage.getItem("userEmail");
-      const movie_data = { movie_id: id, user_email: user_email };
+
+      const movie_data = { movie_id: id };
       console.log(movie_data);
       const response = await apiRemoveFromWatchlist(movie_data);
       console.log(response);

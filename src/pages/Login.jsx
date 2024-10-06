@@ -1,15 +1,22 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { loginUser } from "../services/auth";
 import { AuthContext } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import Button from "../ui/Button";
 
 function Login() {
+  const navigate = useNavigate();
+  useEffect(() => {
+    const token = localStorage.getItem("access_token"); // Replace with your token key
+    if (token) {
+      navigate('/popularmovies'); // Redirect to the dashboard or home
+    }
+  }, [navigate]);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState({ value: "", isTouched: false });
 
   const { setAuthState } = useContext(AuthContext); // Access AuthContext
-  const navigate = useNavigate();
+
 
   const clearForm = () => {
     setEmail("");
@@ -23,12 +30,13 @@ function Login() {
     const response = await loginUser(userData);
 
     if (response.message === "Login successful") {
+      localStorage.setItem('access_token', response.access_token);
+      localStorage.setItem('refresh_token', response.refresh_token);
       // Store authentication info in localStorage and context
       alert("Logged in successfully!");
 
       clearForm();
-      localStorage.setItem("authToken", response.token);
-      localStorage.setItem("userEmail", email);
+
 
       setAuthState({
         isAuthenticated: true,

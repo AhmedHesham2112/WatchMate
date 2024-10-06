@@ -1,25 +1,26 @@
 import request from "./index";
+import { protectedRequest } from "./index";
 
 export const registerUser = async (userData) =>
   request("/register", "POST", userData);
 
 export const loginUser = async (loginData) =>
-  request("/login", "POST", loginData);
+  protectedRequest("/login", "POST", loginData);
 
 export const addToFavorites = async (movieData) =>
-  request("/atf", "POST", movieData);
+  protectedRequest("/atf", "POST", movieData);
 
 export const removeFromFavorites = async (movieData) =>
-  request("/rff", "POST", movieData);
+  protectedRequest("/rff", "POST", movieData);
 
 export const addToWatchlist = async (movieData) =>
-  request("/atwl", "POST", movieData);
+  protectedRequest("/atwl", "POST", movieData);
 
 export const removeFromWatchlist = async (movieData) =>
-  request("/rfwl", "POST", movieData);
+  protectedRequest("/rfwl", "POST", movieData);
 
 export const getFavoritesMovies = async (userData) =>
-  request("/gf", "GET", userData);
+  protectedRequest("/gf", "GET", userData);
 
 export const getWatchlistMovies = async (userData) =>
-  request("/gwl", "GET", userData);
+  protectedRequest("/gwl", "GET", userData);

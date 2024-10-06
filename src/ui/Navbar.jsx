@@ -9,9 +9,9 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("userEmail");
-    setAuthState({ isAuthenticated: false, token: null, email: null });
+    localStorage.removeItem("access_token"); // Replace with your token key
+    localStorage.removeItem("refresh_token");
+    setAuthState({ isAuthenticated: false, token: null });
     navigate("/");
   };
 

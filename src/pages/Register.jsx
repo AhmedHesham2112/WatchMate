@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import RegisterContext from "../contexts/RegisterContext";
 import { registerUser } from "../services/auth";
 import { useNavigate } from "react-router-dom";
@@ -18,6 +18,12 @@ function Register() {
   } = state;
 
   const navigate = useNavigate();
+  useEffect(() => {
+    const token = localStorage.getItem("access_token"); // Replace with your token key
+    if (token) {
+      navigate('/popularmovies'); // Redirect to the dashboard or home
+    }
+  }, [navigate]);
 
   const clearForm = () => {
     dispatch({ type: "CLEAR_FORM" });

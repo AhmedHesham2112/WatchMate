@@ -7,16 +7,18 @@ const Logout = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("userEmail");
-    setAuthState({ isAuthenticated: false, token: null, email: null });
+    alert("hellooooooooooooooooooooooooooooooooooooooo")
+    localStorage.removeItem("access_token"); // Replace with your token key
+    localStorage.removeItem("refresh_token");
+    setAuthState({ isAuthenticated: false, token: null });
+    console.log(localStorage.getItem("access_token"))
     navigate("/login");
   };
 
   return (
     <footer>
       <button onClick={handleLogout} className="button">
-        Logout
+        Logouttttttttttttttt
       </button>
     </footer>
   );

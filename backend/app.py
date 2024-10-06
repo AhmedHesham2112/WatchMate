@@ -5,6 +5,8 @@ from flask_login import LoginManager, UserMixin, login_user, current_user, logou
 from flask_cors import CORS
 from config import Config
 from flask import Response
+from flask_jwt_extended import JWTManager, create_access_token, create_refresh_token, jwt_required, get_jwt_identity
+from datetime import timedelta
 
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -13,7 +15,11 @@ from sqlalchemy.ext.mutable import MutableList
 
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'your-secret-key'
+app.config['JWT_SECRET_KEY'] = 'your-jwt-secret-key'
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)  # Set token expiry
 app.config.from_object(Config)
+jwt = JWTManager(app)
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
@@ -67,16 +73,29 @@ def login():
     data = request.get_json()
     user = Users.query.filter_by(email = data['email']).first()
     if user.password_hash and check_password_hash(user.password_hash, data['password']):
-        login_user(user, remember=data.get('remember', False))
-        return jsonify({"message": "Login successful"}), 200
+        access_token = create_access_token(identity=user.email)
+        refresh_token = create_refresh_token(identity=user.email)
+        # login_user(user, remember=data.get('remember', False))
+        return jsonify({"message": "Login successful",
+                        "access_token": access_token,
+                        "refresh_token": refresh_token}), 200
     else:
         return jsonify({"message": "Login Unsuccessful. Please check email and password"}), 401
+
+# Route to refresh the token
+@app.route('/refresh', methods=['POST'])
+@jwt_required(refresh=True)
+def refresh():
+    current_user_id = get_jwt_identity()
+    new_access_token = create_access_token(identity=current_user_id)
+    return jsonify(access_token=new_access_token)
     
 @app.route("/atf", methods=['POST'])
+@jwt_required()
 def add_to_fav():
     data = request.get_json()
-    print("data................", data)
-    user = Users.query.filter_by(email=data['user_email']).first()
+    user_email = get_jwt_identity()
+    user = Users.query.filter_by(email=user_email).first()
 
     if user:
         if user.favorite_movie_ids is None:
@@ -96,9 +115,12 @@ def add_to_fav():
 
 
 @app.route("/rff", methods=['POST'])
+@jwt_required()
+
 def remove_from_fav():
     data = request.get_json()
-    user = Users.query.filter_by(email=data['user_email']).first()
+    user_email = get_jwt_identity()
+    user = Users.query.filter_by(email=user_email).first()
 
     if user:
         if user.favorite_movie_ids is None:
@@ -117,9 +139,11 @@ def remove_from_fav():
 
 
 @app.route("/atwl", methods=['POST'])
+@jwt_required()
 def add_to_watchlist():
     data = request.get_json()
-    user = Users.query.filter_by(email=data['user_email']).first()
+    user_email = get_jwt_identity()
+    user = Users.query.filter_by(email=user_email).first()
 
     if user:
         if user.watchlist_movie_ids is None:
@@ -138,9 +162,12 @@ def add_to_watchlist():
 
 
 @app.route("/rfwl", methods=['POST'])
+@jwt_required()
 def remove_from_watchlist():
     data = request.get_json()
-    user = Users.query.filter_by(email=data['user_email']).first()
+    user_email = get_jwt_identity()
+
+    user = Users.query.filter_by(email=user_email).first()
 
     if user:
         if user.watchlist_movie_ids is None:
@@ -158,9 +185,10 @@ def remove_from_watchlist():
         return jsonify({"message": "User not found"}), 404
 
 @app.route("/gf", methods=['GET'])
+@jwt_required()
 def get_fav():
-    data = request.get_json()
-    user = Users.query.filter_by(email=data['user_email']).first()
+    user_email = get_jwt_identity()
+    user = Users.query.filter_by(email=user_email).first()
 
     if user:
         if (user.favorite_movie_ids is None) or (len(user.favorite_movie_ids) == 0):
@@ -173,9 +201,10 @@ def get_fav():
         return jsonify({"message": "User not found"}), 404
     
 @app.route("/gwl", methods=['GET'])
+@jwt_required()
 def get_watchlist():
-    data = request.get_json()
-    user = Users.query.filter_by(email=data['user_email']).first()
+    user_email = get_jwt_identity()
+    user = Users.query.filter_by(email=user_email).first()
 
     if user:
         if (user.watchlist_movie_ids is None) or (len(user.watchlist_movie_ids) == 0):
