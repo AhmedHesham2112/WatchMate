@@ -23,11 +23,14 @@ function reducer(state, action) {
         ...state,
         isLoading: false,
         favorites: action.payload,
+        error: "",
       };
     case "favorites/add":
       return {
         ...state,
         favorites: [...state.favorites, action.payload],
+        isLoading: false,
+        error: "",
       };
     case "favorites/remove":
       return {
@@ -35,6 +38,8 @@ function reducer(state, action) {
         favorites: state.favorites.filter(
           (favorite) => favorite.id !== action.payload,
         ),
+        isLoading: false,
+        error: "",
       };
     case "rejected":
       return {
@@ -58,12 +63,14 @@ export function FavoritesProvider({ children }) {
       dispatch({ type: "loading" });
       try {
         const user_email = localStorage.getItem("userEmail");
-        const user_data = { user_email: user_email }
-        const ids = await apiGetFavoritesMovies(user_data); // Fetch favorite movie IDs
-        console.log(ids)
+        const user_data = { user_email: user_email };
+        const ids = await apiGetFavoritesMovies(user_data); // Check if this request returns correct data
+        console.log("Fetched movie IDs:", ids); // Add logging for debugging
+
         const movies = await Promise.all(ids.map((id) => fetchMovie(id)));
         dispatch({ type: "favorites/loaded", payload: movies });
       } catch (error) {
+        console.error("Error fetching favorites:", error);
         dispatch({
           type: "rejected",
           payload: "Failed to load favorites.",
@@ -78,10 +85,10 @@ export function FavoritesProvider({ children }) {
     dispatch({ type: "loading" });
     try {
       const user_email = localStorage.getItem("userEmail");
-      const movie_data = { movie_id: movie.id, user_email: user_email }
-      console.log(movie_data)
+      const movie_data = { movie_id: movie.id, user_email: user_email };
+      console.log(movie_data);
       const response = await apiAddToFavorites(movie_data);
-      console.log(response)
+      console.log(response);
       dispatch({ type: "favorites/add", payload: movie });
     } catch {
       dispatch({
@@ -95,10 +102,10 @@ export function FavoritesProvider({ children }) {
     dispatch({ type: "loading" });
     try {
       const user_email = localStorage.getItem("userEmail");
-      const movie_data = { movie_id: movie.id, user_email: user_email }
-      console.log(movie_data)
+      const movie_data = { movie_id: id, user_email: user_email };
+      console.log(movie_data);
       const response = await apiRemoveFromFavorites(movie_data);
-      console.log(response)
+      console.log(response);
       dispatch({ type: "favorites/remove", payload: id });
     } catch {
       dispatch({

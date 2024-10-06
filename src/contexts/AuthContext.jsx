@@ -12,8 +12,11 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const token = localStorage.getItem("authToken");
     const email = localStorage.getItem("userEmail");
+
     if (token && email) {
       setAuthState({ isAuthenticated: true, token, email });
+    } else {
+      setAuthState({ isAuthenticated: false, token: null, email: null });
     }
   }, []);
 

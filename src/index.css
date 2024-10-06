@@ -3,14 +3,14 @@
 @tailwind utilities;
 @layer components {
   .input {
-    @apply rounded-full border border-stone-200 px-3 py-1.5 text-sm transition-all duration-300 placeholder:text-stone-400 focus:outline-none focus:ring focus:ring-blue-400 md:px-4 md:py-2;
+    @apply rounded-full border border-stone-200 px-3 py-1.5 text-sm transition-all duration-300 placeholder:text-stone-400 focus:outline-none focus:ring focus:ring-red-700 md:px-4 md:py-2;
   }
   .spinner {
     width: 50px;
     aspect-ratio: 1;
     border-radius: 50%;
-    border: 8px solid lightblue;
-    border-right-color: orange;
+    border: 8px solid white;
+    border-right-color: #d92323;
     animation: s2 1s infinite linear;
   }
   @keyframes s2 {
@@ -28,15 +28,15 @@
 
   .scrollbar::-webkit-scrollbar-track {
     border-radius: 100vh;
-    background: #212122;
+    background: #310808;
   }
 
   .scrollbar::-webkit-scrollbar-thumb {
-    background: #9da4b0;
+    background: #c78c8c;
     border-radius: 100vh;
   }
 
   .scrollbar::-webkit-scrollbar-thumb:hover {
-    background: #434347;
+    background: #7a1313;
   }
 }

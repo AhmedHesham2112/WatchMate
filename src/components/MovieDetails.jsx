@@ -1,11 +1,35 @@
-import React from "react";
+import React, { useContext } from "react";
 import useMovieDetails from "./useMovieDetails";
 import { useParams } from "react-router-dom";
 import Spinner from "../ui/Spinner";
+import { useWatchlist } from "../contexts/WatchlistContext";
+import { useFavorites } from "../contexts/FavoritesContext";
+import { AuthContext } from "../contexts/AuthContext";
+import { FaHeart, FaRegHeart, FaBookmark, FaRegBookmark } from "react-icons/fa";
 
 function MovieDetails() {
+  const { authState } = useContext(AuthContext);
   const { id } = useParams(); // Get the movie ID from the URL
   const { movieDetails, isLoading, error } = useMovieDetails(id);
+  const {
+    addWatchlist,
+    removeWatchlist,
+    watchlist,
+    isLoading: isLoadingWatchlist,
+  } = useWatchlist();
+  const {
+    addFavorites,
+    removeFavorites,
+    favorites,
+    isLoading: isLoadingFavorites,
+  } = useFavorites();
+
+  const isInWatchlist = watchlist.some(
+    (toWatch) => toWatch.id === movieDetails.id,
+  );
+  const isInFavorites = favorites.some(
+    (favorite) => favorite.id === movieDetails.id,
+  );
 
   if (isLoading) return <Spinner />;
   if (error) return <p>Error: {error.message}</p>;
@@ -47,6 +71,55 @@ function MovieDetails() {
                 <span className="font-semibold">Genres: </span>
                 {movieDetails.genres.map((genre) => genre.name).join(", ")}
               </p>
+              {authState.isAuthenticated && (
+                <>
+                  {/* Watchlist Button */}
+                  {isLoadingWatchlist ? (
+                    <Spinner type="mini" />
+                  ) : (
+                    <div className="mt-2 flex justify-center gap-2">
+                      {isInWatchlist ? (
+                        <button
+                          onClick={() => removeWatchlist(movieDetails.id)}
+                          className="flex items-center gap-1 text-yellow-500"
+                        >
+                          <FaBookmark /> Remove from watchlist
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => addWatchlist(movieDetails)}
+                          className="flex items-center gap-1 text-gray-400"
+                        >
+                          <FaRegBookmark /> Add to watchlist
+                        </button>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Favorites Button */}
+                  {isLoadingFavorites ? (
+                    <Spinner type="mini" />
+                  ) : (
+                    <div className="mt-2 flex justify-center gap-2">
+                      {isInFavorites ? (
+                        <button
+                          onClick={() => removeFavorites(movieDetails.id)}
+                          className="flex items-center gap-1 text-red-500"
+                        >
+                          <FaHeart /> Remove from favorites
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => addFavorites(movieDetails)}
+                          className="flex items-center gap-1 text-gray-400"
+                        >
+                          <FaRegHeart /> Add to favorites
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           </div>
         </div>

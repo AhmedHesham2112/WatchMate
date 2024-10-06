@@ -1,15 +1,12 @@
 import React, { useContext } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../contexts/AuthContext";
+import CustomLink from "../ui/Customlink";
 
 const Navbar = () => {
   const { authState, setAuthState } = useContext(AuthContext);
   const location = useLocation();
   const navigate = useNavigate();
-
-  const getButtonClass = (path) => {
-    return location.pathname === path ? "nav-button active" : "nav-button";
-  };
 
   const handleLogout = () => {
     localStorage.removeItem("authToken");
@@ -17,48 +14,54 @@ const Navbar = () => {
     setAuthState({ isAuthenticated: false, token: null, email: null });
     navigate("/");
   };
-  return authState.isAuthenticated ? (
-    <nav className="mb-5 flex justify-between">
+
+  // Define the active class for the red underline
+  const isActive = (path) => location.pathname === path;
+  //
+  return (
+    <nav className="flex items-center justify-between bg-gradient-to-r from-black via-red-950 to-black px-8 py-4 text-white shadow-lg">
       <Link to="/" className="m-3 self-start">
-        <div className="">Home</div>
-      </Link>
-      <div className="self-end">
-        <Link to="/topratedmovies" className="m-3">
-          TopRated
-        </Link>
-        <Link to="/popularmovies" className="m-3">
-          Popular
-        </Link>
-        <Link to="/watchlist" className="m-3">
-          Watchlist
-        </Link>
-        <Link to="/favorites" className="m-3">
-          Favorites
-        </Link>
-        <button className="nav-button" onClick={handleLogout}>
-          Logout
-        </button>
-      </div>
-    </nav>
-  ) : (
-    <nav className="mb-5 flex justify-between">
-      <Link to="/" className="m-3 self-start">
-        <div className="">Home</div>
+        <div>Home</div>
       </Link>
 
-      <div className="self-end">
-        <Link to="/topratedmovies" className="m-3">
-          TopRated
-        </Link>
-        <Link to="/popularmovies" className="m-3">
-          Popular
-        </Link>
-        <Link to="/login" className="m-3">
-          Login
-        </Link>
-        <Link to="/register" className="m-3">
-          Register
-        </Link>
+      <div className="m-3 flex space-x-5 self-end">
+        {authState.isAuthenticated ? (
+          <>
+            <CustomLink to="/topratedmovies" currentPath={location.pathname}>
+              TopRated
+            </CustomLink>
+            <CustomLink to="/popularmovies" currentPath={location.pathname}>
+              Popular
+            </CustomLink>
+            <CustomLink to="/watchlist" currentPath={location.pathname}>
+              Watchlist
+            </CustomLink>
+            <CustomLink to="/favorites" currentPath={location.pathname}>
+              Favorites
+            </CustomLink>
+            <button
+              className="nav-button underline-none text-white"
+              onClick={handleLogout}
+            >
+              Logout
+            </button>
+          </>
+        ) : (
+          <>
+            <CustomLink to="/topratedmovies" currentPath={location.pathname}>
+              TopRated
+            </CustomLink>
+            <CustomLink to="/popularmovies" currentPath={location.pathname}>
+              Popular
+            </CustomLink>
+            <CustomLink to="/login" currentPath={location.pathname}>
+              Login
+            </CustomLink>
+            <CustomLink to="/register" currentPath={location.pathname}>
+              Register
+            </CustomLink>
+          </>
+        )}
       </div>
     </nav>
   );

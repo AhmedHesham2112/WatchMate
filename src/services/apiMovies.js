@@ -25,11 +25,20 @@ export async function fetchTopRatedMovies(page = 1) {
   return response.json();
 }
 
-export async function fetchMovie(id) {
-  const response = await fetch(
-    `https://api.themoviedb.org/3/movie/${id}?language=en-US`,
-    options,
-  );
-  if (!response.ok) throw new Error("Failed to fetch the movie");
-  return response.json();
+export async function fetchMovie(id, imdb = false) {
+  if (imdb) {
+    const response = await fetch(
+      `https://api.themoviedb.org/3/find/${id}?external_source=imdb_id`,
+      options,
+    );
+    if (!response.ok) throw new Error("Failed to fetch the movie");
+    return response.json();
+  } else {
+    const response = await fetch(
+      `https://api.themoviedb.org/3/movie/${id}?language=en-US`,
+      options,
+    );
+    if (!response.ok) throw new Error("Failed to fetch the movie");
+    return response.json();
+  }
 }
