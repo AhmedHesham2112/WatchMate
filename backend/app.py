@@ -9,7 +9,8 @@ from flask_jwt_extended import JWTManager, create_access_token, create_refresh_t
 from datetime import timedelta
 
 from werkzeug.security import generate_password_hash, check_password_hash
-
+from flask_mail import Mail, Message
+from itsdangerous import URLSafeTimedSerializer, SignatureExpired
 from sqlalchemy import not_, desc, JSON
 from sqlalchemy.ext.mutable import MutableList
 
@@ -18,10 +19,17 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key'
 app.config['JWT_SECRET_KEY'] = 'your-jwt-secret-key'
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)  # Set token expiry
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_USE_SSL'] = True
+app.config['MAIL_USERNAME'] = 'your_email@gmail.com'
+app.config['MAIL_PASSWORD'] = 'your_email_password'
 app.config.from_object(Config)
 jwt = JWTManager(app)
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
+mail = Mail(app)
+s = URLSafeTimedSerializer(app.config['SECRET_KEY'])
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 login_manager.login_message_category = 'info'
@@ -39,6 +47,7 @@ class Users(db.Model, UserMixin):
     password_hash = db.Column(db.String(255), nullable=False)
     first_name = db.Column(db.String(255), nullable=False)
     last_name = db.Column(db.String(255), nullable=False)
+    verified = db.Column(db.Boolean, default=False)
     favorite_movie_ids = db.Column(MutableList.as_mutable(JSON), default=[])  # Store list of favorite movie IDs
     watchlist_movie_ids = db.Column(MutableList.as_mutable(JSON), default=[])
 
@@ -75,12 +84,48 @@ def login():
     if user.password_hash and check_password_hash(user.password_hash, data['password']):
         access_token = create_access_token(identity=user.email)
         refresh_token = create_refresh_token(identity=user.email)
-        # login_user(user, remember=data.get('remember', False))
+        
         return jsonify({"message": "Login successful",
                         "access_token": access_token,
                         "refresh_token": refresh_token}), 200
     else:
         return jsonify({"message": "Login Unsuccessful. Please check email and password"}), 401
+    
+@app.route('/resend_confirmation', methods=['POST'])
+def resend_confirmation():
+    data = request.get_json()
+    user = Users.query.filter_by(email=data['email']).first()
+
+    if user and not user.verified:
+        token = s.dumps(user.email, salt='email-confirm')
+        confirm_url = url_for('confirm_email', token=token, _external=True)
+        msg = Message('Confirm your Email', sender='your_email@gmail.com', recipients=[user.email])
+        msg.body = f'Please confirm your email by clicking on the following link: {confirm_url}'
+        mail.send(msg)
+        return jsonify({"message": "Confirmation email resent."}), 200
+
+    return jsonify({"message": "User not found or already verified."}), 404
+
+@app.route('/confirm_email/<token>')
+def confirm_email(token):
+    try:
+        # Verify the token and get the user's email
+        email = s.loads(token, salt='email-confirm', max_age=3600)  # Token valid for 1 hour
+    except SignatureExpired:
+        return jsonify({"message": "The confirmation link has expired."}), 400
+
+    # Find the user with the corresponding email
+    user = Users.query.filter_by(email=email).first_or_404()
+
+    # Mark the user as verified
+    if user.verified:
+        return jsonify({"message": "Account already confirmed."}), 200
+    else:
+        user.verified = True
+        db.session.commit()
+        return jsonify({"message": "You have confirmed your account. Thank you!"}), 200
+
+
 
 # Route to refresh the token
 @app.route('/refresh', methods=['POST'])
