@@ -1,6 +1,6 @@
 import { useRef } from "react";
 
-function Search({ query, setQuery, results, handleResultClick }) {
+function Search({ query, setQuery }) {
   const inputEl = useRef(null);
 
   return (

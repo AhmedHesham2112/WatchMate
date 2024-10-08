@@ -2,6 +2,7 @@ import { useState } from "react";
 import Search from "../components/Search";
 import useSearch from "../hooks/useSearch"; // Import your custom search hook
 import { useNavigate } from "react-router-dom";
+import Spinner from "./Spinner";
 
 function Header() {
   const [query, setQuery] = useState(""); // State to track the search input
@@ -25,8 +26,8 @@ function Header() {
 
         {/* Search Results Dropdown */}
         {query && (
-          <div className="absolute left-0 z-10 mt-2 w-full rounded-lg bg-black shadow-lg">
-            {isLoading && <p className="p-2 text-white">Loading...</p>}
+          <div className="absolute left-0 z-20 mt-2 w-full rounded-lg bg-black shadow-lg">
+            {isLoading && <Spinner type="mini" />}
             {error && <p className="p-2 text-red-600">{error}</p>}
             {!isLoading && !error && movies.length === 0 && (
               <p className="p-2 text-white">No results found</p>
@@ -35,16 +36,23 @@ function Header() {
               <ul className="h-72 overflow-y-auto p-2 scrollbar">
                 {movies.map((movie) => (
                   <li
-                    key={movie.imdbID}
+                    key={movie.id}
                     className="flex cursor-pointer items-center p-2 hover:bg-red-900"
-                    onClick={() => handleMovieSelect(movie.imdbID)} // Go to movie details
+                    onClick={() => handleMovieSelect(movie.id)} // Go to movie details
                   >
                     <img
-                      src={movie.Poster}
+                      src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
                       alt={movie.Title}
                       className="mr-3 h-16 w-12 rounded"
                     />
-                    <span className="text-white">{movie.Title}</span>
+                    <div className="flex flex-col text-left">
+                      <span className="text-white">{movie.title}</span>
+                      {movie.release_date && (
+                        <span className="text-white">
+                          📆 {movie.release_date.slice(0, 4)}
+                        </span>
+                      )}
+                    </div>
                   </li>
                 ))}
               </ul>
