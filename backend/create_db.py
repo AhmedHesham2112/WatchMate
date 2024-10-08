@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Table, UniqueConstraint, JSON
+from sqlalchemy import Column, Integer, String, ForeignKey, Table, UniqueConstraint, JSON, Boolean
 from sqlalchemy.orm import relationship, declarative_base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -14,6 +14,7 @@ class User(Base):
     first_name = Column(String(255), nullable=False)
     last_name = Column(String(255), nullable=False)
     password_hash = Column(String(255), nullable=False)  # Store hashed passwords
+    verified = Column(Boolean, default=False)
 
     # Relationships with favorite and watchlist movies
     favorite_movie_ids = Column(JSON, default=[])  # Store list of favorite movie IDs
