@@ -7,7 +7,7 @@ from config import Config
 from flask import Response
 from flask_jwt_extended import JWTManager, create_access_token, create_refresh_token, jwt_required, get_jwt_identity
 from datetime import timedelta
-
+import os
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired
@@ -19,11 +19,15 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key'
 app.config['JWT_SECRET_KEY'] = 'your-jwt-secret-key'
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)  # Set token expiry
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 465
-app.config['MAIL_USE_SSL'] = True
-app.config['MAIL_USERNAME'] = 'your_email@gmail.com'
-app.config['MAIL_PASSWORD'] = 'your_email_password'
+app.config['MAIL_SERVER'] = 'smtp.sendgrid.net'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True  # Use TLS for port 587
+app.config['MAIL_USE_SSL'] = False  # SSL should be False for port 587
+app.config['MAIL_USERNAME'] = 'apikey'
+app.config['MAIL_PASSWORD'] = os.getenv('SMTP_PASSWORD')
+app.config['MAIL_DEBUG '] = True
+app.config['MAIL_DEFAULT_SENDER'] = os.getenv('SMTP_EMAIL')
+app.config['BASE_URL'] = os.getenv('BASE_URL')
 app.config.from_object(Config)
 jwt = JWTManager(app)
 db = SQLAlchemy(app)
@@ -71,10 +75,17 @@ def register():
     user = Users.query.filter_by(email = data['email']).first()
     if(user):
         return jsonify({"message": "User with this Email already exists"}), 201
+    token = s.dumps(data['email'], salt='email-confirm')
+    confirm_url = f"{app.config['BASE_URL']}{url_for('confirm_email', token=token)}"
+    msg = Message('Account Confirmation Email', 
+                  recipients=[data['email']])
+    msg.body = f"Hello {data['first_name']},\n\n Please confirm your email by clicking on the following link: {confirm_url}"
+    mail.send(msg)
     hashed_password = generate_password_hash(data['password'], method='pbkdf2:sha256')
-    users = Users(first_name = data['first_name'], last_name = data['last_name'], email = data['email'], password_hash = hashed_password)
+    users = Users(first_name = data['first_name'], last_name = data['last_name'], email = data['email'], password_hash = hashed_password, verified = True)
     db.session.add(users)
     db.session.commit()
+    
     return jsonify({"message": "User registered successfully"}), 201
     
 @app.route("/login", methods=['POST'])

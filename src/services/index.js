@@ -57,7 +57,7 @@ const protectedRequest = async (url, method, body = null) => {
     options.body = JSON.stringify(body);
   }
 
-  const response = await fetch(`${API_URL}${url}`, options);
+  let response = await fetch(`${API_URL}${url}`, options);
 
   // Handle token expiration or invalid token
   if (response.status === 401) {
