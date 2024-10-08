@@ -5,6 +5,21 @@
   .input {
     @apply rounded-full border border-stone-200 px-3 py-1.5 text-sm transition-all duration-300 placeholder:text-stone-400 focus:outline-none focus:ring focus:ring-red-700 md:px-4 md:py-2;
   }
+  /* Custom Toast Styles */
+  .custom-toast {
+    background-color: #1f2937;
+    color: white;
+    border-radius: 8px;
+  }
+  /* Style for the close button */
+  .custom-toast .Toastify__CloseButton {
+    color: white;
+  }
+
+  /* Optional: Change close button color on hover */
+  .custom-toast .Toastify__CloseButton:hover {
+    color: #ccc;
+  }
   .spinner {
     width: 50px;
     aspect-ratio: 1;

@@ -1,55 +1,59 @@
 import { useState, useEffect } from "react";
 
-const KEY = "dd943b4b";
+const options = {
+  method: "GET",
+  headers: {
+    accept: "application/json",
+    Authorization:
+      "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIzYTMzOWYyMjU2MDlmOGZiYjI4YWQ3YzZlYjBmMTczYSIsIm5iZiI6MTcyNzgwNzE2OC43NTgxMjcsInN1YiI6IjY2ZjMwODE3YTk3ODgwMTQ4ZjNiOWI2MCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.9cnPkFkVJkVcbK0fQBfh3eMYQNV9NB_4kmrJWQG5tm8",
+  },
+};
 
 export default function useSearch(query) {
   const [movies, setMovies] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  useEffect(
-    function () {
-      //   callback?.();
-      const controller = new AbortController();
+  useEffect(() => {
+    const controller = new AbortController();
 
-      async function fetchSearch() {
-        try {
-          setIsLoading(true);
-          setError("");
-          const res = await fetch(
-            `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`,
-            { signal: controller.signal },
-          );
-
-          if (!res.ok) throw new Error("Something went wrong");
-
-          const data = await res.json();
-
-          if (data.Response === "False") throw new Error("movie not found");
-
-          setMovies(data.Search);
-          setError("");
-        } catch (err) {
-          console.error(err.message);
-          if (err.name !== "AbortError") setError(err.message);
-        } finally {
-          setIsLoading(false);
-        }
-      }
-      if (query.length < 2) {
-        setMovies([]);
+    async function fetchSearch() {
+      try {
+        setIsLoading(true);
         setError("");
-        return;
+        const res = await fetch(
+          `https://api.themoviedb.org/3/search/movie?query=${query}`,
+          { ...options, signal: controller.signal },
+        );
+
+        if (!res.ok) throw new Error("Something went wrong");
+
+        const data = await res.json();
+
+        if (data.results.length === 0) throw new Error("Movie not found");
+
+        setMovies(data.results);
+        setError("");
+      } catch (err) {
+        console.error(err.message);
+        if (err.name !== "AbortError") setError(err.message);
+      } finally {
+        setIsLoading(false);
       }
+    }
 
-      //   handleCloseMovie();
-      fetchSearch();
+    if (query.length < 2) {
+      setMovies([]);
+      setError("");
+      return;
+    }
 
-      return function () {
-        controller.abort();
-      };
-    },
-    [query],
-  );
+    fetchSearch();
+
+    return () => {
+      controller.abort();
+    };
+  }, [query]);
+
   return { movies, isLoading, error };
 }

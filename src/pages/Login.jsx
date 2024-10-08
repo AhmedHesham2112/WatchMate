@@ -2,21 +2,25 @@ import React, { useState, useContext, useEffect } from "react";
 import { loginUser } from "../services/auth";
 import { AuthContext } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import Button from "../ui/Button";
+import InputField from "../ui/InputField";
 
 function Login() {
   const navigate = useNavigate();
+
   useEffect(() => {
-    const token = localStorage.getItem("access_token"); // Replace with your token key
+    const token = localStorage.getItem("access_token");
     if (token) {
-      navigate('/popularmovies'); // Redirect to the dashboard or home
+      navigate("/popularmovies");
     }
   }, [navigate]);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState({ value: "", isTouched: false });
 
-  const { setAuthState } = useContext(AuthContext); // Access AuthContext
-
+  const { setAuthState } = useContext(AuthContext);
 
   const clearForm = () => {
     setEmail("");
@@ -30,13 +34,14 @@ function Login() {
     const response = await loginUser(userData);
 
     if (response.message === "Login successful") {
-      localStorage.setItem('access_token', response.access_token);
-      localStorage.setItem('refresh_token', response.refresh_token);
-      // Store authentication info in localStorage and context
-      alert("Logged in successfully!");
+      localStorage.setItem("access_token", response.access_token);
+      localStorage.setItem("refresh_token", response.refresh_token);
 
+      toast.success("Logged in successfully!", {
+        position: "top-center",
+        className: "custom-toast",
+      });
       clearForm();
-
 
       setAuthState({
         isAuthenticated: true,
@@ -44,52 +49,49 @@ function Login() {
         email: email,
       });
 
-      // Redirect to dashboard
-      navigate("/watchlist");
+      navigate("/");
     } else {
-      alert("Error logging in! Please try again.");
+      toast.error("Error logging in! Please try again.", {
+        position: "top-center",
+        className: "custom-toast",
+      });
     }
   };
 
   return (
-    <div>
+    <div className="flex min-h-screen items-center justify-center">
       <form
         onSubmit={handleSubmit}
-        className="flex flex-col items-center justify-center rounded-lg border border-gray-400 px-5 py-10"
+        className="w-full max-w-md rounded-lg bg-black bg-opacity-50 p-8 shadow-lg"
       >
-        <fieldset className="flex flex-col gap-5">
-          <h2 className="mb-5 text-center text-2xl font-bold">Login</h2>
-          <div className="flex justify-between">
-            <label>
-              Email address <sup>*</sup>
-            </label>
-            <input
-              className="input ml-3 border-2 text-black"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Email address"
-              required
-            />
-          </div>
-          <div className="flex justify-between">
-            <label>
-              Password <sup>*</sup>
-            </label>
-            <input
-              className="input ml-3 border-2 text-black"
-              value={password.value}
-              type="password"
-              onChange={(e) =>
-                setPassword({ ...password, value: e.target.value })
-              }
-              onBlur={() => setPassword({ ...password, isTouched: true })}
-              placeholder="Password"
-              required
-            />
-          </div>
-          <Button type="primary">Login</Button>
-        </fieldset>
+        <h2 className="mb-6 text-center text-3xl font-semibold">Login</h2>
+
+        <div className="space-y-4">
+          <InputField
+            label="Email Address"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="johndoe@example.com"
+            required
+          />
+          <InputField
+            label="Password"
+            type="password"
+            value={password.value}
+            onChange={(e) =>
+              setPassword({ ...password, value: e.target.value })
+            }
+            placeholder="••••••••"
+            required
+          />
+        </div>
+        <div className="mt-5 flex justify-center">
+          <Button type="primary" className="mt-6 w-full">
+            Login
+          </Button>
+        </div>
       </form>
+      <ToastContainer />
     </div>
   );
 }

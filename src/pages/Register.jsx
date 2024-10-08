@@ -2,7 +2,10 @@ import React, { useContext, useEffect } from "react";
 import RegisterContext from "../contexts/RegisterContext";
 import { registerUser } from "../services/auth";
 import { useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import Button from "../ui/Button";
+import InputField from "../ui/InputField";
 
 function Register() {
   const { state, dispatch } = useContext(RegisterContext);
@@ -18,10 +21,11 @@ function Register() {
   } = state;
 
   const navigate = useNavigate();
+
   useEffect(() => {
-    const token = localStorage.getItem("access_token"); // Replace with your token key
+    const token = localStorage.getItem("access_token");
     if (token) {
-      navigate('/popularmovies'); // Redirect to the dashboard or home
+      navigate("/popularmovies");
     }
   }, [navigate]);
 
@@ -47,23 +51,37 @@ function Register() {
     dispatch({ type: "SET_PASSWORD_ERROR", payload: false });
     dispatch({ type: "SET_CONFIRM_PASSWORD_ERROR", payload: false });
 
-    // Validate email, password, and confirm password
     const isEmailValid = validateEmail(email);
     const isPasswordValid = validatePassword(password);
     const isConfirmPasswordValid = password === confirmPassword;
 
     if (!isEmailValid) {
       dispatch({ type: "SET_EMAIL_ERROR", payload: true });
+      toast.error("Please enter a valid email address.", {
+        position: "top-center",
+        className: "custom-toast",
+      });
       return;
     }
 
     if (!isPasswordValid) {
       dispatch({ type: "SET_PASSWORD_ERROR", payload: true });
+      toast.error(
+        "Password must contain at least 8 characters, including upper, lower, number, and special character.",
+        {
+          position: "top-center",
+          className: "custom-toast",
+        },
+      );
       return;
     }
 
     if (!isConfirmPasswordValid) {
       dispatch({ type: "SET_CONFIRM_PASSWORD_ERROR", payload: true });
+      toast.error("Passwords do not match.", {
+        position: "top-center",
+        className: "custom-toast",
+      });
       return;
     }
 
@@ -76,140 +94,117 @@ function Register() {
 
     const response = await registerUser(userData);
     if (response.message === "User registered successfully") {
-      alert("Account created!");
+      toast.success("Account created successfully!", {
+        position: "top-center",
+        className: "custom-toast",
+      });
       clearForm();
-      navigate("/login"); // Redirect to login after success
+      navigate("/login");
     } else if (response.message === "User with this Email already exists") {
-      alert(response.message);
+      toast.error(response.message, {
+        position: "top-center",
+        className: "custom-toast",
+      });
     } else {
-      alert("Error creating account");
+      toast.error("Error creating account", {
+        position: "top-center",
+        className: "custom-toast",
+      });
     }
   };
 
   return (
-    <div>
+    <div className="flex min-h-screen items-center justify-center">
       <form
         onSubmit={handleSubmit}
-        className="flex flex-col items-center justify-center rounded-lg border border-gray-400 px-5 py-10"
+        className="w-full max-w-md rounded-lg bg-black bg-opacity-50 p-8 shadow-lg"
       >
-        <fieldset className="flex flex-col gap-5">
-          <h2 className="mb-5 text-center text-2xl font-bold">Sign Up</h2>
-          <div className="flex justify-between">
-            <label>
-              First name <sup>*</sup>
-            </label>
-            <input
-              className="input ml-3 border-2 text-black"
-              value={firstName}
-              onChange={(e) =>
-                dispatch({
-                  type: "SET_FIELD",
-                  field: "firstName",
-                  payload: e.target.value,
-                })
-              }
-              placeholder="First name"
-              required
-            />
-          </div>
-          <div className="flex justify-between">
-            <label>
-              Last name <sup>*</sup>
-            </label>
-            <input
-              className="input ml-3 border-2 text-black"
-              value={lastName}
-              onChange={(e) =>
-                dispatch({
-                  type: "SET_FIELD",
-                  field: "lastName",
-                  payload: e.target.value,
-                })
-              }
-              placeholder="Last name"
-              required
-            />
-          </div>
-          <div className="flex justify-between">
-            <label>
-              Email address <sup>*</sup>
-            </label>
-            <input
-              className="input ml-3 border-2 text-black"
-              value={email}
-              onChange={(e) =>
-                dispatch({
-                  type: "SET_FIELD",
-                  field: "email",
-                  payload: e.target.value,
-                })
-              }
-              placeholder="Email address"
-              required
-            />
-          </div>
-          {emailError && <EmailErrorMessage />}
-          <div className="flex justify-between">
-            <label>
-              Password <sup>*</sup>
-            </label>
-            <input
-              className="input ml-3 border-2 text-black"
-              value={password}
-              type="password"
-              onChange={(e) =>
-                dispatch({
-                  type: "SET_FIELD",
-                  field: "password",
-                  payload: e.target.value,
-                })
-              }
-              placeholder="Password"
-              required
-            />
-          </div>
-          {passwordError && <PasswordErrorMessage />}
-          <div className="flex justify-between">
-            <label>
-              Confirm Password <sup>*</sup>
-            </label>
-            <input
-              className="input ml-3 border-2 text-black"
-              value={confirmPassword}
-              type="password"
-              onChange={(e) =>
-                dispatch({
-                  type: "SET_FIELD",
-                  field: "confirmPassword",
-                  payload: e.target.value,
-                })
-              }
-              placeholder="Confirm Password"
-              required
-            />
-          </div>
-          {confirmPasswordError && <ConfirmPasswordErrorMessage />}
+        <h2 className="mb-6 text-center text-3xl font-semibold">
+          Create an Account
+        </h2>
 
-          <Button type="primary">Create account</Button>
-        </fieldset>
+        <div className="space-y-4">
+          <InputField
+            label="First Name"
+            value={firstName}
+            onChange={(e) =>
+              dispatch({
+                type: "SET_FIELD",
+                field: "firstName",
+                payload: e.target.value,
+              })
+            }
+            placeholder="John"
+            required
+          />
+          <InputField
+            label="Last Name"
+            value={lastName}
+            onChange={(e) =>
+              dispatch({
+                type: "SET_FIELD",
+                field: "lastName",
+                payload: e.target.value,
+              })
+            }
+            placeholder="Doe"
+            required
+          />
+          <InputField
+            label="Email Address"
+            value={email}
+            onChange={(e) =>
+              dispatch({
+                type: "SET_FIELD",
+                field: "email",
+                payload: e.target.value,
+              })
+            }
+            placeholder="johndoe@example.com"
+            error={emailError && "Please enter a valid email address."}
+            required
+          />
+          <InputField
+            label="Password"
+            type="password"
+            value={password}
+            onChange={(e) =>
+              dispatch({
+                type: "SET_FIELD",
+                field: "password",
+                payload: e.target.value,
+              })
+            }
+            placeholder="••••••••"
+            error={passwordError && "Password must be strong."}
+            required
+          />
+          <InputField
+            label="Confirm Password"
+            type="password"
+            value={confirmPassword}
+            onChange={(e) =>
+              dispatch({
+                type: "SET_FIELD",
+                field: "confirmPassword",
+                payload: e.target.value,
+              })
+            }
+            placeholder="••••••••"
+            error={confirmPasswordError && "Passwords do not match."}
+            required
+          />
+        </div>
+
+        <div className="mt-5 flex justify-center">
+          <Button type="primary" className="mt-6 w-full">
+            Sign Up
+          </Button>
+        </div>
       </form>
+      <ToastContainer />
     </div>
   );
 }
 
 export default Register;
-
-const PasswordErrorMessage = () => (
-  <p className="FieldError">
-    Password should have at least 8 characters and include uppercase, lowercase,
-    number, and special character
-  </p>
-);
-
-const EmailErrorMessage = () => (
-  <p className="FieldError">Invalid email address</p>
-);
-
-const ConfirmPasswordErrorMessage = () => (
-  <p className="FieldError">Passwords do not match</p>
-);

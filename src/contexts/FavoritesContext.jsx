@@ -5,6 +5,7 @@ import {
   removeFromFavorites as apiRemoveFromFavorites,
   getFavoritesMovies as apiGetFavoritesMovies,
 } from "../services/auth";
+import { AuthContext } from "./AuthContext";
 
 const FavoritesContext = createContext();
 
@@ -53,6 +54,7 @@ function reducer(state, action) {
 }
 
 export function FavoritesProvider({ children }) {
+  const { authState } = useContext(AuthContext);
   const [{ favorites, isLoading, error }, dispatch] = useReducer(
     reducer,
     initialState,
@@ -62,11 +64,10 @@ export function FavoritesProvider({ children }) {
     async function getFavorites() {
       dispatch({ type: "loading" });
       try {
-        const ids = await apiGetFavoritesMovies(); // Check if this request returns correct data
-        console.log("Fetched movie IDs:", ids); // Add logging for debugging
-
-        const movies = await Promise.all(ids.result.map((id) => fetchMovie(id)));
-        console.log(movies)
+        const ids = await apiGetFavoritesMovies();
+        const movies = await Promise.all(
+          ids.result.map((id) => fetchMovie(id)),
+        );
         dispatch({ type: "favorites/loaded", payload: movies });
       } catch (error) {
         console.error("Error fetching favorites:", error);
@@ -77,17 +78,18 @@ export function FavoritesProvider({ children }) {
       }
     }
 
-    getFavorites(); // Fetch favorites when the component mounts
-  }, []);
+    if (authState.isAuthenticated) {
+      getFavorites();
+    }
+  }, [authState.isAuthenticated]); // Re-run the effect only when authState changes
 
   async function addFavorites(movie) {
     dispatch({ type: "loading" });
     try {
-
       const movie_data = { movie_id: movie.id };
-      console.log(movie_data);
+
       const response = await apiAddToFavorites(movie_data);
-      console.log(response);
+      // console.log(response);
       dispatch({ type: "favorites/add", payload: movie });
     } catch {
       dispatch({
@@ -100,11 +102,10 @@ export function FavoritesProvider({ children }) {
   async function removeFavorites(id) {
     dispatch({ type: "loading" });
     try {
-
       const movie_data = { movie_id: id };
-      console.log(movie_data);
+
       const response = await apiRemoveFromFavorites(movie_data);
-      console.log(response);
+      // console.log(response);
       dispatch({ type: "favorites/remove", payload: id });
     } catch {
       dispatch({

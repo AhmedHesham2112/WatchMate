@@ -4,7 +4,7 @@ export default function CustomLink({ to, children, currentPath }) {
   return (
     <Link
       to={to}
-      className={`relative px-2 py-1 text-white no-underline transition-all duration-300 ease-in-out`}
+      className={`hover:text-red-logo relative px-2 py-1 text-white no-underline transition-all duration-300 ease-in-out`}
     >
       {children}
 
