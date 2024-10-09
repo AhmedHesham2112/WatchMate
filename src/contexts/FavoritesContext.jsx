@@ -4,6 +4,7 @@ import {
   addToFavorites as apiAddToFavorites,
   removeFromFavorites as apiRemoveFromFavorites,
   getFavoritesMovies as apiGetFavoritesMovies,
+  resendConfirmation as apiResendConfirmation,
 } from "../services/auth";
 import { AuthContext } from "./AuthContext";
 
@@ -65,10 +66,17 @@ export function FavoritesProvider({ children }) {
       dispatch({ type: "loading" });
       try {
         const ids = await apiGetFavoritesMovies();
-        const movies = await Promise.all(
-          ids.result.map((id) => fetchMovie(id)),
-        );
-        dispatch({ type: "favorites/loaded", payload: movies });
+        console.log(ids)
+        if (ids.message === "User not verified") {
+          // ADD CONDITIONAL RENDERING TO THE FAV PAGE
+        }
+        else {
+          const movies = await Promise.all(
+            ids.result.map((id) => fetchMovie(id)),
+          );
+          dispatch({ type: "favorites/loaded", payload: movies });
+        }
+
       } catch (error) {
         console.error("Error fetching favorites:", error);
         dispatch({
@@ -89,6 +97,9 @@ export function FavoritesProvider({ children }) {
       const movie_data = { movie_id: movie.id };
 
       const response = await apiAddToFavorites(movie_data);
+      if (response.message === "User not verified") {
+        // DISABLE THE ADD TO FAV BUTTON ON THE CARD AND INSIDE THE MOVIE PAGE
+      }
       // console.log(response);
       dispatch({ type: "favorites/add", payload: movie });
     } catch {
@@ -105,6 +116,9 @@ export function FavoritesProvider({ children }) {
       const movie_data = { movie_id: id };
 
       const response = await apiRemoveFromFavorites(movie_data);
+      if (response.message === "User not verified") {
+        // DISABLE THE ADD TO FAV BUTTON ON THE CARD AND INSIDE THE MOVIE PAGE
+      }
       // console.log(response);
       dispatch({ type: "favorites/remove", payload: id });
     } catch {

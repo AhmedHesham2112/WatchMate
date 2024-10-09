@@ -4,6 +4,7 @@ import {
   addToWatchlist as apiAddToWatchlist,
   removeFromWatchlist as apiRemoveFromWatchlist,
   getWatchlistMovies as apiGetWatchlistMovies,
+  resendConfirmation as apiResendConfirmation,
 } from "../services/auth";
 import { AuthContext } from "./AuthContext";
 
@@ -65,10 +66,15 @@ export function WatchlistProvider({ children }) {
       dispatch({ type: "loading" });
       try {
         const ids = await apiGetWatchlistMovies();
-        const movies = await Promise.all(
-          ids.result.map((id) => fetchMovie(id)),
-        );
-        dispatch({ type: "watchlist/loaded", payload: movies });
+        if (ids.message === "User not verified") {
+          // ADD CONDITIONAL RENDERING TO THE WATCHLIST PAGE
+        }
+        else {
+          const movies = await Promise.all(
+            ids.result.map((id) => fetchMovie(id)),
+          );
+          dispatch({ type: "watchlist/loaded", payload: movies });
+        }
       } catch (error) {
         console.error("Error fetching watchlist:", error);
         dispatch({
@@ -88,6 +94,9 @@ export function WatchlistProvider({ children }) {
     try {
       const movie_data = { movie_id: movie.id };
       const response = await apiAddToWatchlist(movie_data);
+      if (response.message === "User not verified") {
+        // DISABLE THE ADD TO FAV BUTTON ON THE CARD AND INSIDE THE MOVIE PAGE
+      }
       // console.log(response);
       dispatch({ type: "watchlist/add", payload: movie });
     } catch {
@@ -103,6 +112,9 @@ export function WatchlistProvider({ children }) {
     try {
       const movie_data = { movie_id: id };
       const response = await apiRemoveFromWatchlist(movie_data);
+      if (response.message === "User not verified") {
+        // DISABLE THE ADD TO FAV BUTTON ON THE CARD AND INSIDE THE MOVIE PAGE
+      }
       // console.log(response);
       dispatch({ type: "watchlist/remove", payload: id });
     } catch {

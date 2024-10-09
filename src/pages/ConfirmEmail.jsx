@@ -18,7 +18,7 @@ const ConfirmEmail = () => {
         );
 
         const data = await response.json();
-        if (data.success) {
+        if (data.message === 'You have confirmed your account. Thank you!') {
           alert("Email confirmed successfully!");
           // Optionally redirect the user or perform additional actions
         } else {

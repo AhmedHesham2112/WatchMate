@@ -1,11 +1,11 @@
 const API_URL = "http://localhost:9000";
 
 const getAccessToken = () => {
-  return localStorage.getItem("access_token"); // Replace with your access token storage method
+  return localStorage.getItem("access_token");
 };
 
 const getRefreshToken = () => {
-  return localStorage.getItem("refresh_token"); // Replace with your refresh token storage method
+  return localStorage.getItem("refresh_token");
 };
 
 const refreshAccessToken = async () => {

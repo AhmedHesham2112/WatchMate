@@ -5,7 +5,10 @@ export const registerUser = async (userData) =>
   request("/register", "POST", userData);
 
 export const loginUser = async (loginData) =>
-  protectedRequest("/login", "POST", loginData);
+  request("/login", "POST", loginData);
+
+export const resendConfirmation = async () =>
+  protectedRequest("/resend_confirmation", "POST");
 
 export const addToFavorites = async (movieData) =>
   protectedRequest("/atf", "POST", movieData);

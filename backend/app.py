@@ -80,21 +80,8 @@ def register():
         return jsonify({"message": "User with this Email already exists"}), 201
     token = s.dumps(data['email'], salt='email-confirm')
     confirm_url = f"{app.config['BASE_URL']}{url_for('confirm_email', token=token)}"
-    # message = Mail(
-    # from_email='watchmate123@outlook.com',
-    # to_emails=data['email'],
-    # subject='Account Email Verification',
-    # html_content=f"Hello {data['first_name']},\n\n Please confirm your email by clicking on the following link: {confirm_url}")
-    # print(os.environ.get('SENDGRID_API_KEY'))
-    # sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
-    
-    # response = sg.send(message)
-    # print(response.status_code)
-    # print(response.body)
-    # print(response.headers)
     print(os.getenv('SMTP_EMAIL'))
-    msg = Message('Account Confirmation Email', 
-                  recipients=[data['email']])
+    msg = Message('Account Confirmation Email', recipients=[data['email']])
     # msg.html = render_template_string('''
     #     <p>Welcome to WatchMate!</p>
     #     <p>To confirm your account, please click <a href="{confirm_url}">here</a>.</p>
@@ -113,10 +100,10 @@ def register():
 def login():
     data = request.get_json()
     user = Users.query.filter_by(email = data['email']).first()
+    print(data)
     if user.password_hash and check_password_hash(user.password_hash, data['password']):
         access_token = create_access_token(identity=user.email)
         refresh_token = create_refresh_token(identity=user.email)
-        
         return jsonify({"message": "Login successful",
                         "access_token": access_token,
                         "refresh_token": refresh_token}), 200
@@ -130,9 +117,9 @@ def resend_confirmation():
 
     if user and not user.verified:
         token = s.dumps(user.email, salt='email-confirm')
-        confirm_url = url_for('confirm_email', token=token, _external=True)
-        msg = Message('Confirm your Email', sender='your_email@gmail.com', recipients=[user.email])
-        msg.body = f'Please confirm your email by clicking on the following link: {confirm_url}'
+        confirm_url = f"{app.config['BASE_URL']}{url_for('confirm_email', token=token)}"
+        msg = Message('Account Confirmation Email', recipients=[data['email']])
+        msg.body = f"Hello {data['first_name']},\n\n Please confirm your email by clicking on the following link: {confirm_url}"
         mail.send(msg)
         return jsonify({"message": "Confirmation email resent."}), 200
 
@@ -175,6 +162,8 @@ def add_to_fav():
     user = Users.query.filter_by(email=user_email).first()
 
     if user:
+        if user.verified == 0:
+            return jsonify({"message": "User not verified"}), 200
         if user.favorite_movie_ids is None:
             user.favorite_movie_ids = []
         movie_id = data['movie_id']
@@ -200,6 +189,8 @@ def remove_from_fav():
     user = Users.query.filter_by(email=user_email).first()
 
     if user:
+        if user.verified == 0:
+            return jsonify({"message": "User not verified"}), 200
         if user.favorite_movie_ids is None:
             user.favorite_movie_ids = []
         movie_id = data['movie_id']
@@ -223,6 +214,8 @@ def add_to_watchlist():
     user = Users.query.filter_by(email=user_email).first()
 
     if user:
+        if user.verified == 0:
+            return jsonify({"message": "User not verified"}), 200
         if user.watchlist_movie_ids is None:
             user.watchlist_movie_ids = []
         movie_id = data['movie_id']
@@ -247,6 +240,8 @@ def remove_from_watchlist():
     user = Users.query.filter_by(email=user_email).first()
 
     if user:
+        if user.verified == 0:
+            return jsonify({"message": "User not verified"}), 200
         if user.watchlist_movie_ids is None:
             user.watchlist_movie_ids = []
         movie_id = data['movie_id']
@@ -268,6 +263,8 @@ def get_fav():
     user = Users.query.filter_by(email=user_email).first()
 
     if user:
+        if user.verified == 0:
+            return jsonify({"message": "User not verified"}), 200
         if (user.favorite_movie_ids is None) or (len(user.favorite_movie_ids) == 0):
             user.favorite_movie_ids = []
             return jsonify({"message": "Failure"}), 200
@@ -282,9 +279,11 @@ def get_fav():
 def get_watchlist():
     user_email = get_jwt_identity()
     user = Users.query.filter_by(email=user_email).first()
-
+    
     if user:
-        if (user.watchlist_movie_ids is None) or (len(user.watchlist_movie_ids) == 0):
+        if user.verified == 0:
+            return jsonify({"message": "User not verified"}), 200
+        elif (user.watchlist_movie_ids is None) or (len(user.watchlist_movie_ids) == 0):
             user.watchlist_movie_ids = []
             return jsonify({"message": "Failure"}), 200
 

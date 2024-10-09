@@ -31,6 +31,7 @@ function Login() {
     e.preventDefault();
 
     const userData = { email, password: password.value };
+    console.log(userData)
     const response = await loginUser(userData);
 
     if (response.message === "Login successful") {
