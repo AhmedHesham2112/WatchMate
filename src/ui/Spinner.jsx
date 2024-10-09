@@ -1,7 +1,7 @@
 function Spinner({ type }) {
   if (type === "mini")
     return (
-      <div className="flex justify-center">
+      <div className="flex scale-50 justify-center">
         <div className="spinner"></div>
       </div>
     );
