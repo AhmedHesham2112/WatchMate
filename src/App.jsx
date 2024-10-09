@@ -21,6 +21,7 @@ import PopularMovies from "./pages/PopularMovies";
 import MovieDetails from "./components/MovieDetails";
 import { FavoritesProvider } from "./contexts/FavoritesContext";
 import Favorites from "./pages/Favorites";
+import ConfirmEmail from "./pages/ConfirmEmail";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +38,10 @@ const router = createBrowserRouter([
       {
         path: "/movie/:id",
         element: <MovieDetails />,
+      },
+      {
+        path: "/confirm_email/:token",
+        element: <ConfirmEmail />,
       },
       {
         path: "/register",

@@ -12,7 +12,7 @@ const Watchlist = () => {
       <div className="min-h-screen p-5">
         {isLoading && <Spinner />}
         {error !== "" && <p>Add movies to your Watchlist</p>}
-        <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
           {watchlist.map((movie) => (
             <MovieCard key={movie.id} movie={movie} />
           ))}
