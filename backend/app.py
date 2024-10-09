@@ -8,12 +8,15 @@ from flask import Response
 from flask_jwt_extended import JWTManager, create_access_token, create_refresh_token, jwt_required, get_jwt_identity
 from datetime import timedelta
 import os
+from flask import render_template_string
+
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired
 from sqlalchemy import not_, desc, JSON
 from sqlalchemy.ext.mutable import MutableList
-
+from dotenv import load_dotenv
+load_dotenv(dotenv_path='../.env')
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key'
@@ -77,12 +80,30 @@ def register():
         return jsonify({"message": "User with this Email already exists"}), 201
     token = s.dumps(data['email'], salt='email-confirm')
     confirm_url = f"{app.config['BASE_URL']}{url_for('confirm_email', token=token)}"
+    # message = Mail(
+    # from_email='watchmate123@outlook.com',
+    # to_emails=data['email'],
+    # subject='Account Email Verification',
+    # html_content=f"Hello {data['first_name']},\n\n Please confirm your email by clicking on the following link: {confirm_url}")
+    # print(os.environ.get('SENDGRID_API_KEY'))
+    # sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
+    
+    # response = sg.send(message)
+    # print(response.status_code)
+    # print(response.body)
+    # print(response.headers)
+    print(os.getenv('SMTP_EMAIL'))
     msg = Message('Account Confirmation Email', 
                   recipients=[data['email']])
+    # msg.html = render_template_string('''
+    #     <p>Welcome to WatchMate!</p>
+    #     <p>To confirm your account, please click <a href="{confirm_url}">here</a>.</p>
+    #     <p>Thank you!</p>
+    # ''')
     msg.body = f"Hello {data['first_name']},\n\n Please confirm your email by clicking on the following link: {confirm_url}"
     mail.send(msg)
     hashed_password = generate_password_hash(data['password'], method='pbkdf2:sha256')
-    users = Users(first_name = data['first_name'], last_name = data['last_name'], email = data['email'], password_hash = hashed_password, verified = True)
+    users = Users(first_name = data['first_name'], last_name = data['last_name'], email = data['email'], password_hash = hashed_password, verified = False)
     db.session.add(users)
     db.session.commit()
     
