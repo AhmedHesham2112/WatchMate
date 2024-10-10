@@ -14,6 +14,7 @@ const initialState = {
   watchlist: [],
   isLoading: false,
   error: "",
+  isUserVerified: true,
 };
 
 function reducer(state, action) {
@@ -25,6 +26,7 @@ function reducer(state, action) {
         ...state,
         isLoading: false,
         watchlist: action.payload,
+        isUserVerified: true,
         error: "",
       };
     case "watchlist/add":
@@ -49,6 +51,14 @@ function reducer(state, action) {
         isLoading: false,
         error: action.payload,
       };
+    case "user/not-verified":
+      return {
+        ...state,
+        isLoading: false,
+        isUserVerified: false,
+        error:
+          "User is not verified. Please verify your email to access watchlist.",
+      };
     default:
       throw new Error("Unknown action type");
   }
@@ -56,10 +66,8 @@ function reducer(state, action) {
 
 export function WatchlistProvider({ children }) {
   const { authState } = useContext(AuthContext);
-  const [{ watchlist, isLoading, error }, dispatch] = useReducer(
-    reducer,
-    initialState,
-  );
+  const [{ watchlist, isLoading, error, isUserVerified }, dispatch] =
+    useReducer(reducer, initialState);
 
   useEffect(() => {
     async function getWatchlist() {
@@ -67,9 +75,8 @@ export function WatchlistProvider({ children }) {
       try {
         const ids = await apiGetWatchlistMovies();
         if (ids.message === "User not verified") {
-          // ADD CONDITIONAL RENDERING TO THE WATCHLIST PAGE
-        }
-        else {
+          dispatch({ type: "user/not-verified" });
+        } else {
           const movies = await Promise.all(
             ids.result.map((id) => fetchMovie(id)),
           );
@@ -87,18 +94,19 @@ export function WatchlistProvider({ children }) {
     if (authState.isAuthenticated) {
       getWatchlist();
     }
-  }, [authState.isAuthenticated]); // Re-run the effect only when authState changes
+  }, [authState.isAuthenticated]);
 
   async function addWatchlist(movie) {
     dispatch({ type: "loading" });
     try {
       const movie_data = { movie_id: movie.id };
+
       const response = await apiAddToWatchlist(movie_data);
       if (response.message === "User not verified") {
-        // DISABLE THE ADD TO FAV BUTTON ON THE CARD AND INSIDE THE MOVIE PAGE
+        dispatch({ type: "user/not-verified" });
+      } else {
+        dispatch({ type: "watchlist/add", payload: movie });
       }
-      // console.log(response);
-      dispatch({ type: "watchlist/add", payload: movie });
     } catch {
       dispatch({
         type: "rejected",
@@ -111,16 +119,37 @@ export function WatchlistProvider({ children }) {
     dispatch({ type: "loading" });
     try {
       const movie_data = { movie_id: id };
+
       const response = await apiRemoveFromWatchlist(movie_data);
       if (response.message === "User not verified") {
-        // DISABLE THE ADD TO FAV BUTTON ON THE CARD AND INSIDE THE MOVIE PAGE
+        dispatch({ type: "user/not-verified" });
+      } else {
+        dispatch({ type: "watchlist/remove", payload: id });
       }
-      // console.log(response);
-      dispatch({ type: "watchlist/remove", payload: id });
     } catch {
       dispatch({
         type: "rejected",
         payload: "Failed to remove the movie from watchlist.",
+      });
+    }
+  }
+
+  async function resendConfirmationEmail() {
+    dispatch({ type: "loading" });
+    try {
+      const response = await apiResendConfirmation();
+      if (response.success) {
+        alert("Confirmation email has been resent. Please check your inbox.");
+      } else {
+        dispatch({
+          type: "rejected",
+          payload: "Failed to resend confirmation email.",
+        });
+      }
+    } catch {
+      dispatch({
+        type: "rejected",
+        payload: "Failed to resend confirmation email.",
       });
     }
   }
@@ -131,8 +160,10 @@ export function WatchlistProvider({ children }) {
         watchlist,
         isLoading,
         error,
+        isUserVerified,
         addWatchlist,
         removeWatchlist,
+        resendConfirmationEmail,
       }}
     >
       {children}

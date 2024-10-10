@@ -8,7 +8,8 @@ import Spinner from "../ui/Spinner";
 
 function MovieCard({ movie }) {
   const { authState } = useContext(AuthContext);
-  const { addWatchlist, removeWatchlist, watchlist } = useWatchlist();
+  const { addWatchlist, removeWatchlist, watchlist, isUserVerified } =
+    useWatchlist();
   const { addFavorites, removeFavorites, favorites } = useFavorites();
 
   const [loadingWatchlist, setLoadingWatchlist] = useState(false);
@@ -57,7 +58,7 @@ function MovieCard({ movie }) {
 
       {/* Overlay for buttons */}
       <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-xl bg-black bg-opacity-0 transition-all hover:bg-opacity-50">
-        {authState.isAuthenticated && (
+        {authState.isAuthenticated && isUserVerified && (
           <>
             {/* Watchlist Button */}
             <div className="pointer-events-auto absolute left-2 top-2 z-10">

@@ -14,6 +14,7 @@ const initialState = {
   favorites: [],
   isLoading: false,
   error: "",
+  isUserVerified: true,
 };
 
 function reducer(state, action) {
@@ -25,6 +26,7 @@ function reducer(state, action) {
         ...state,
         isLoading: false,
         favorites: action.payload,
+        isUserVerified: true,
         error: "",
       };
     case "favorites/add":
@@ -49,6 +51,14 @@ function reducer(state, action) {
         isLoading: false,
         error: action.payload,
       };
+    case "user/not-verified":
+      return {
+        ...state,
+        isLoading: false,
+        isUserVerified: false,
+        error:
+          "User is not verified. Please verify your email to access favorites.",
+      };
     default:
       throw new Error("Unknown action type");
   }
@@ -56,27 +66,22 @@ function reducer(state, action) {
 
 export function FavoritesProvider({ children }) {
   const { authState } = useContext(AuthContext);
-  const [{ favorites, isLoading, error }, dispatch] = useReducer(
-    reducer,
-    initialState,
-  );
+  const [{ favorites, isLoading, error, isUserVerified }, dispatch] =
+    useReducer(reducer, initialState);
 
   useEffect(() => {
     async function getFavorites() {
       dispatch({ type: "loading" });
       try {
         const ids = await apiGetFavoritesMovies();
-        console.log(ids)
         if (ids.message === "User not verified") {
-          // ADD CONDITIONAL RENDERING TO THE FAV PAGE
-        }
-        else {
+          dispatch({ type: "user/not-verified" });
+        } else {
           const movies = await Promise.all(
             ids.result.map((id) => fetchMovie(id)),
           );
           dispatch({ type: "favorites/loaded", payload: movies });
         }
-
       } catch (error) {
         console.error("Error fetching favorites:", error);
         dispatch({
@@ -89,7 +94,7 @@ export function FavoritesProvider({ children }) {
     if (authState.isAuthenticated) {
       getFavorites();
     }
-  }, [authState.isAuthenticated]); // Re-run the effect only when authState changes
+  }, [authState.isAuthenticated]);
 
   async function addFavorites(movie) {
     dispatch({ type: "loading" });
@@ -98,10 +103,10 @@ export function FavoritesProvider({ children }) {
 
       const response = await apiAddToFavorites(movie_data);
       if (response.message === "User not verified") {
-        // DISABLE THE ADD TO FAV BUTTON ON THE CARD AND INSIDE THE MOVIE PAGE
+        dispatch({ type: "user/not-verified" });
+      } else {
+        dispatch({ type: "favorites/add", payload: movie });
       }
-      // console.log(response);
-      dispatch({ type: "favorites/add", payload: movie });
     } catch {
       dispatch({
         type: "rejected",
@@ -117,14 +122,34 @@ export function FavoritesProvider({ children }) {
 
       const response = await apiRemoveFromFavorites(movie_data);
       if (response.message === "User not verified") {
-        // DISABLE THE ADD TO FAV BUTTON ON THE CARD AND INSIDE THE MOVIE PAGE
+        dispatch({ type: "user/not-verified" });
+      } else {
+        dispatch({ type: "favorites/remove", payload: id });
       }
-      // console.log(response);
-      dispatch({ type: "favorites/remove", payload: id });
     } catch {
       dispatch({
         type: "rejected",
         payload: "Failed to remove the movie from favorites.",
+      });
+    }
+  }
+
+  async function resendConfirmationEmail() {
+    dispatch({ type: "loading" });
+    try {
+      const response = await apiResendConfirmation();
+      if (response.success) {
+        alert("Confirmation email has been resent. Please check your inbox.");
+      } else {
+        dispatch({
+          type: "rejected",
+          payload: "Failed to resend confirmation email.",
+        });
+      }
+    } catch {
+      dispatch({
+        type: "rejected",
+        payload: "Failed to resend confirmation email.",
       });
     }
   }
@@ -135,8 +160,10 @@ export function FavoritesProvider({ children }) {
         favorites,
         isLoading,
         error,
+        isUserVerified,
         addFavorites,
         removeFavorites,
+        resendConfirmationEmail,
       }}
     >
       {children}

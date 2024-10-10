@@ -16,6 +16,7 @@ function MovieDetails() {
     removeWatchlist,
     watchlist,
     isLoading: isLoadingWatchlist,
+    isUserVerified,
   } = useWatchlist();
   const {
     addFavorites,
@@ -72,7 +73,7 @@ function MovieDetails() {
           {movieDetails.genres.map((genre) => genre.name).join(", ")}
         </p>
 
-        {authState.isAuthenticated && (
+        {authState.isAuthenticated && isUserVerified && (
           <div className="mt-4 flex justify-between">
             {/* Watchlist Button */}
             {isLoadingWatchlist ? (
