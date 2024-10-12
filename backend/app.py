@@ -109,17 +109,19 @@ def login():
                         "refresh_token": refresh_token}), 200
     else:
         return jsonify({"message": "Login Unsuccessful. Please check email and password"}), 401
-    
+
 @app.route('/resend_confirmation', methods=['POST'])
+@jwt_required()    
+
 def resend_confirmation():
-    data = request.get_json()
-    user = Users.query.filter_by(email=data['email']).first()
+    user_email = get_jwt_identity()
+    user = Users.query.filter_by(email=user_email).first()
 
     if user and not user.verified:
         token = s.dumps(user.email, salt='email-confirm')
         confirm_url = f"{app.config['BASE_URL']}{url_for('confirm_email', token=token)}"
-        msg = Message('Account Confirmation Email', recipients=[data['email']])
-        msg.body = f"Hello {data['first_name']},\n\n Please confirm your email by clicking on the following link: {confirm_url}"
+        msg = Message('Account Confirmation Email', recipients=[user_email])
+        msg.body = f"Hello {user.first_name},\n\n Please confirm your email by clicking on the following link: {confirm_url}"
         mail.send(msg)
         return jsonify({"message": "Confirmation email resent."}), 200
 
