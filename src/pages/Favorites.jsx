@@ -3,6 +3,8 @@ import { useFavorites } from "../contexts/FavoritesContext";
 import MovieCard from "../components/MovieCard";
 import Spinner from "../ui/Spinner";
 import Button from "../ui/Button";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Favorites = () => {
   const {
@@ -20,6 +22,7 @@ const Favorites = () => {
         <Button type="primary" onClick={resendConfirmationEmail}>
           Resend Verification To Your Email
         </Button>
+        <ToastContainer />
       </div>
     );
   }
@@ -31,7 +34,7 @@ const Favorites = () => {
   if (error) {
     return (
       <>
-        <h1 className="m-4 text-xl font-semibold">Favorite Movies</h1>
+        <h1 className="m-4 text-xl font-semibold">Favorites Movies</h1>
         <div className="min-h-screen p-5">
           <p>Add movies to your favorites</p>
         </div>
@@ -41,7 +44,7 @@ const Favorites = () => {
 
   return (
     <>
-      <h1 className="m-4 text-xl font-semibold">Favorite Movies</h1>
+      <h1 className="m-4 text-xl font-semibold">Favorites Movies</h1>
       <div className="min-h-screen p-5">
         {favorites.length > 0 ? (
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
