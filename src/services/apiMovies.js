@@ -33,3 +33,12 @@ export async function fetchMovie(id) {
   if (!response.ok) throw new Error("Failed to fetch the movie");
   return response.json();
 }
+
+export async function fetchProviders(id) {
+  const response = await fetch(
+    `https://api.themoviedb.org/3/movie/${id}/watch/providers?language=en-US`,
+    options,
+  );
+  if (!response.ok) throw new Error("Failed to fetch the provider");
+  return response.json();
+}

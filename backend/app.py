@@ -293,6 +293,24 @@ def get_watchlist():
         
     else:
         return jsonify({"message": "User not found"}), 404
+    
+@app.route("/gr", methods=['GET'])
+@jwt_required()
+def get_recommendations():
+    user_email = get_jwt_identity()
+    user = Users.query.filter_by(email=user_email).first()
+    
+    if user:
+        if user.verified == 0:
+            return jsonify({"message": "User not verified"}), 200
+        elif (user.watchlist_movie_ids is None) or (len(user.watchlist_movie_ids) == 0):
+            user.watchlist_movie_ids = []
+            return jsonify({"message": "Failure"}), 200
+
+        return jsonify({"message": "Success", "result" : user.watchlist_movie_ids}), 200
+        
+    else:
+        return jsonify({"message": "User not found"}), 404
 
 
 if __name__ == '__main__':
