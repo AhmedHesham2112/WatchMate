@@ -1,7 +1,6 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext } from "react";
 import RegisterContext from "../contexts/RegisterContext";
 import { registerUser } from "../services/auth";
-import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Button from "../ui/Button";
@@ -19,15 +18,6 @@ function Register() {
     passwordError,
     confirmPasswordError,
   } = state;
-
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const token = localStorage.getItem("access_token");
-    if (token) {
-      navigate("/popularmovies");
-    }
-  }, [navigate]);
 
   const clearForm = () => {
     dispatch({ type: "CLEAR_FORM" });
@@ -94,12 +84,14 @@ function Register() {
 
     const response = await registerUser(userData);
     if (response.message === "User registered successfully") {
-      toast.success("Account created successfully!", {
-        position: "top-center",
-        className: "custom-toast",
-      });
+      toast.success(
+        "Registered successfully please check your mail to verify your account!",
+        {
+          position: "top-center",
+          className: "custom-toast",
+        },
+      );
       clearForm();
-      navigate("/login");
     } else if (response.message === "User with this Email already exists") {
       toast.error(response.message, {
         position: "top-center",

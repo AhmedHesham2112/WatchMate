@@ -3,6 +3,8 @@ import { useWatchlist } from "../contexts/WatchlistContext";
 import MovieCard from "../components/MovieCard";
 import Spinner from "../ui/Spinner";
 import Button from "../ui/Button";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Watchlist = () => {
   const {
@@ -20,6 +22,7 @@ const Watchlist = () => {
         <Button type="primary" onClick={resendConfirmationEmail}>
           Resend Verification To Your Email
         </Button>
+        <ToastContainer />
       </div>
     );
   }

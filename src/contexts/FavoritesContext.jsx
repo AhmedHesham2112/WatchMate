@@ -7,6 +7,7 @@ import {
   resendConfirmation as apiResendConfirmation,
 } from "../services/auth";
 import { AuthContext } from "./AuthContext";
+import { toast } from "react-toastify";
 
 const FavoritesContext = createContext();
 
@@ -138,18 +139,32 @@ export function FavoritesProvider({ children }) {
     dispatch({ type: "loading" });
     try {
       const response = await apiResendConfirmation();
-      if (response.success) {
-        alert("Confirmation email has been resent. Please check your inbox.");
+      if (response.message === "Confirmation email resent.") {
+        toast.success(
+          "Confirmation email has been resent. Please check your inbox.",
+          {
+            position: "top-center",
+            className: "custom-toast",
+          },
+        );
       } else {
         dispatch({
           type: "rejected",
           payload: "Failed to resend confirmation email.",
+        });
+        toast.error("Failed to resend confirmation email.", {
+          position: "top-center",
+          className: "custom-toast",
         });
       }
     } catch {
       dispatch({
         type: "rejected",
         payload: "Failed to resend confirmation email.",
+      });
+      toast.error("An error occurred while resending confirmation email.", {
+        position: "top-center",
+        className: "custom-toast",
       });
     }
   }

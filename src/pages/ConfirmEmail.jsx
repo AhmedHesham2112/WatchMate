@@ -1,5 +1,7 @@
 import React, { useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const ConfirmEmail = () => {
   const { token } = useParams(); // Extract token from URL parameters
@@ -18,15 +20,26 @@ const ConfirmEmail = () => {
         );
 
         const data = await response.json();
-        if (data.message === 'You have confirmed your account. Thank you!') {
-          alert("Email confirmed successfully!");
-          // Optionally redirect the user or perform additional actions
+        if (data.message === "You have confirmed your account. Thank you!") {
+          toast.success("You have confirmed your account. Thank you!", {
+            position: "top-center",
+            className: "custom-toast",
+          });
         } else {
-          alert("Email confirmation failed: " + data.message);
+          toast.error("Email confirmation failed: " + data.message, {
+            position: "top-center",
+            className: "custom-toast",
+          });
         }
       } catch (error) {
         console.error("Error confirming email:", error);
-        alert("There was an error confirming your email. Please try again.");
+        toast.error(
+          "There was an error confirming your email. Please try again.",
+          {
+            position: "top-center",
+            className: "custom-toast",
+          },
+        );
       }
     };
 
@@ -37,6 +50,7 @@ const ConfirmEmail = () => {
     <div>
       <h1>Email Confirmation</h1>
       <p>Confirming your email...</p>
+      <ToastContainer />
     </div>
   );
 };
