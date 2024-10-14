@@ -9,6 +9,7 @@ from flask_jwt_extended import JWTManager, create_access_token, create_refresh_t
 from datetime import timedelta
 import os
 from flask import render_template_string
+from collections import Counter
 
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_mail import Mail, Message
@@ -153,8 +154,10 @@ def confirm_email(token):
 @jwt_required(refresh=True)
 def refresh():
     current_user_id = get_jwt_identity()
+    print(current_user_id)
     new_access_token = create_access_token(identity=current_user_id)
-    return jsonify(access_token=new_access_token)
+    print(new_access_token)
+    return jsonify({'access_token':new_access_token}), 200
     
 @app.route("/atf", methods=['POST'])
 @jwt_required()
@@ -162,18 +165,21 @@ def add_to_fav():
     data = request.get_json()
     user_email = get_jwt_identity()
     user = Users.query.filter_by(email=user_email).first()
-
+    print("hellooooooooooooo",data)
     if user:
         if user.verified == 0:
             return jsonify({"message": "User not verified"}), 200
         if user.favorite_movie_ids is None:
             user.favorite_movie_ids = []
         movie_id = data['movie_id']
+        print("hellooooooooooooo",data['movie_genre'])
+        movie_genres = data['movie_genre']
+        movie_data = [movie_id,movie_genres]
         
         
         # Check if movie is already in favorites
         if movie_id not in user.favorite_movie_ids:
-            user.favorite_movie_ids.append(movie_id)
+            user.favorite_movie_ids.append(movie_data)
             db.session.commit()  # Save the updated list to the database
             return jsonify({"message": "Movie added to favorites"}), 200
         else:
@@ -196,10 +202,11 @@ def remove_from_fav():
         if user.favorite_movie_ids is None:
             user.favorite_movie_ids = []
         movie_id = data['movie_id']
-        
+        updated_movie_ids = [movie for movie in user.favorite_movie_ids if movie[0] != movie_id]
+
         # Check if movie is in favorites
-        if movie_id in user.favorite_movie_ids:
-            user.favorite_movie_ids.remove(movie_id)
+        if len(user.favorite_movie_ids) >len(updated_movie_ids):
+            user.favorite_movie_ids = updated_movie_ids
             db.session.commit()  # Save the updated list to the database
             return jsonify({"message": "Movie removed from favorites"}), 200
         else:
@@ -303,15 +310,21 @@ def get_recommendations():
     if user:
         if user.verified == 0:
             return jsonify({"message": "User not verified"}), 200
-        elif (user.watchlist_movie_ids is None) or (len(user.watchlist_movie_ids) == 0):
-            user.watchlist_movie_ids = []
-            return jsonify({"message": "Failure"}), 200
+        elif (user.favorite_movie_ids is None) or (len(user.favorite_movie_ids) == 0):
+            user.favorite_movie_ids = []
+            return jsonify({"message": "User doesn't have any saved movies"}), 200
+        elif len(user.favorite_movie_ids) > 0:
+            all_numbers = [num for _, inner_list in user.favorite_movie_ids for num in inner_list]
 
-        return jsonify({"message": "Success", "result" : user.watchlist_movie_ids}), 200
-        
+            counter = Counter(all_numbers)
+
+            most_common_two = [item for item, _ in counter.most_common(2)]
+
+            # Output the result
+            print(most_common_two)
+            return jsonify({"message": "Success", "result" : most_common_two}), 200
     else:
         return jsonify({"message": "User not found"}), 404
-
-
+    
 if __name__ == '__main__':
     app.run(debug= True, port=9000)

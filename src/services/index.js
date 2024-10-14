@@ -14,13 +14,15 @@ const refreshAccessToken = async () => {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      "Authorization": `Bearer ${refreshToken}`
     },
-    body: JSON.stringify({ refresh_token: refreshToken }), // Send refresh token to refresh endpoint
+    // Send refresh token to refresh endpoint
   });
 
-  if (response.ok) {
+  if (response.access_token) {
     const data = await response.json();
-    localStorage.setItem("accessToken", data.accessToken); // Update access token
+    localStorage.setItem("access_token", data.access_token);
+    localStorage.setItem("refresh_token", data.access_token); // Update access token
     return data.accessToken; // Return the new access token
   } else {
     // Handle the error, possibly logging out the user if the refresh fails
@@ -62,6 +64,7 @@ const protectedRequest = async (url, method, body = null) => {
   // Handle token expiration or invalid token
   if (response.status === 401) {
     token = await refreshAccessToken(); // Attempt to refresh the token
+    console.log(token)
     if (token) {
       // Retry the original request with the new access token
       response = await fetch(`${API_URL}${url}`, {
@@ -77,6 +80,7 @@ const protectedRequest = async (url, method, body = null) => {
 
   return response.json();
 };
+
 
 export default request; // Default export
 export { protectedRequest };

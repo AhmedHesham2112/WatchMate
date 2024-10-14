@@ -22,8 +22,11 @@ export const addToWatchlist = async (movieData) =>
 export const removeFromWatchlist = async (movieData) =>
   protectedRequest("/rfwl", "POST", movieData);
 
-export const getFavoritesMovies = async (userData) =>
-  protectedRequest("/gf", "GET", userData);
+export const getFavoritesMovies = async () =>
+  protectedRequest("/gf", "GET");
 
-export const getWatchlistMovies = async (userData) =>
-  protectedRequest("/gwl", "GET", userData);
+export const getWatchlistMovies = async () =>
+  protectedRequest("/gwl", "GET");
+
+export const getRecommendations = async () =>
+  protectedRequest("/gr", "GET",);

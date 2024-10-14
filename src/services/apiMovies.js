@@ -33,6 +33,14 @@ export async function fetchMovie(id) {
   if (!response.ok) throw new Error("Failed to fetch the movie");
   return response.json();
 }
+export async function fetchRecommendations(genreId) {
+  const response = await fetch(
+    `https://api.themoviedb.org/3/discover/movie&with_genres=${genreId}&sort_by=vote_count.desc&language=en-US&page=1`,
+    options,
+  );
+  if (!response.ok) throw new Error("Failed to fetch recommendations");
+  return response.json();
+}
 
 export async function fetchProviders(id) {
   const response = await fetch(
