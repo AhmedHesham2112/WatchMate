@@ -17,7 +17,7 @@ const Watchlist = () => {
 
   if (!isUserVerified) {
     return (
-      <div className="m-10 flex flex-col items-center justify-center gap-5">
+      <div className="m-10 flex h-[100vh] flex-col items-center justify-center gap-5">
         <p>Please verify your email to access your watchlist.</p>
         <Button type="primary" onClick={resendConfirmationEmail}>
           Resend Verification To Your Email

@@ -84,7 +84,6 @@ export function FavoritesProvider({ children }) {
           dispatch({ type: "favorites/loaded", payload: movies });
         }
       } catch (error) {
-        console.error("Error fetching favorites:", error);
         dispatch({
           type: "rejected",
           payload: "Failed to load favorites.",
@@ -100,7 +99,12 @@ export function FavoritesProvider({ children }) {
   async function addFavorites(movie) {
     dispatch({ type: "loading" });
     try {
-      const movie_data = { movie_id: movie.id, movie_genre: movie.genre_ids };
+      const movie_data = {
+        movie_id: movie.id,
+        movie_genre: movie.genre_ids
+          ? movie.genre_ids
+          : movie.genres.map((genre) => genre.id),
+      };
 
       const response = await apiAddToFavorites(movie_data);
       if (response.message === "User not verified") {

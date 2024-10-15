@@ -84,7 +84,6 @@ export function WatchlistProvider({ children }) {
           dispatch({ type: "watchlist/loaded", payload: movies });
         }
       } catch (error) {
-        console.error("Error fetching watchlist:", error);
         dispatch({
           type: "rejected",
           payload: "Failed to load watchlist.",

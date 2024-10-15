@@ -47,7 +47,7 @@ const ConfirmEmail = () => {
   }, [token]);
 
   return (
-    <div>
+    <div className="h-[100vh]">
       <h1>Email Confirmation</h1>
       <p>Confirming your email...</p>
       <ToastContainer />

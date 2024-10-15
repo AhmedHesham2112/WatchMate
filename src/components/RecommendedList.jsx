@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { getRecommendations as getRecommendationsGenres, getFavoritesMovies } from "../services/auth";
+import {
+  getRecommendations as getRecommendationsGenres,
+  getFavoritesMovies,
+} from "../services/auth";
 import { fetchRecommendations } from "../services/apiMovies";
 import MovieList from "./MovieList";
 import Spinner from "../ui/Spinner";
@@ -21,22 +24,26 @@ function RecommendedList() {
             let movies = [];
             let pageToFetch = 1;
             let fetchedMovies = [];
-            const filteredFavMovies = favorites?.map(movie => movie.id);
-
+            const filteredFavMovies = favorites?.map((movie) => movie.id);
 
             while (movies.length < 20) {
               // Fetch the recommendations for the current page
-              const recommendations = await fetchRecommendations(genres, pageToFetch);
+              const recommendations = await fetchRecommendations(
+                genres,
+                pageToFetch,
+              );
 
               // Filter out movies that are in the user's favorites
-              fetchedMovies = recommendations.results.filter(movie => !filteredFavMovies.includes(movie.id));
+              fetchedMovies = recommendations.results.filter(
+                (movie) => !filteredFavMovies.includes(movie.id),
+              );
 
               // Add the filtered movies to the list
               movies = [...movies, ...fetchedMovies];
 
               // If fewer than 20 movies are available after filtering, fetch the next page
               if (movies.length < 20) {
-                pageToFetch += 1;  // Increment page number to fetch the next page
+                pageToFetch += 1; // Increment page number to fetch the next page
               } else {
                 // Break the loop once we have 20 or more movies
                 break;
@@ -51,7 +58,6 @@ function RecommendedList() {
 
             // Set the recommended movies with the final filtered movies
             setRecommendedMovies({ results: finalMovies });
-
           }
         } catch (err) {
           console.error(err);
@@ -67,16 +73,17 @@ function RecommendedList() {
 
   return (
     <>
-      <p className="m-4 text-xl font-semibold">Recommendations</p>
-
       {recommendaitonsMovies.length !== 0 ? (
-        <MovieList
-          categoryFetch={recommendaitonsMovies}
-          isLoading={isLoading}
-          key="recommendaitonsMovies"
-        />
+        <>
+          <p className="m-4 text-xl font-semibold">Recommendations</p>
+          <MovieList
+            categoryFetch={recommendaitonsMovies}
+            isLoading={isLoading}
+            key="recommendaitonsMovies"
+          />
+        </>
       ) : (
-        <p>Please add movies to your favorites</p>
+        ""
       )}
     </>
   );
