@@ -6,6 +6,8 @@ import { useWatchlist } from "../contexts/WatchlistContext";
 import { useFavorites } from "../contexts/FavoritesContext";
 import { AuthContext } from "../contexts/AuthContext";
 import { FaHeart, FaRegHeart, FaBookmark, FaRegBookmark } from "react-icons/fa";
+import MovieList from "./MovieList";
+import useRecommendedMovies from "./useRecommendedMovies";
 
 function MovieDetails() {
   const { authState } = useContext(AuthContext);
@@ -24,6 +26,12 @@ function MovieDetails() {
     favorites,
     isLoading: isLoadingFavorites,
   } = useFavorites();
+
+  const genres = movieDetails
+    ? movieDetails.genres.map((genre) => genre.id).join("%2C")
+    : "";
+  const { isLoading: isLoadingRecommended, recommendedMovies } =
+    useRecommendedMovies(genres);
 
   const isInWatchlist = movieDetails
     ? watchlist.some((toWatch) => toWatch.id === movieDetails.id)
@@ -114,6 +122,16 @@ function MovieDetails() {
             )}
           </div>
         )}
+      </div>
+      {/* Similar section */}
+      <div className="mb-4 w-full px-4">
+        <p className="mt-4 text-xl font-semibold">Similar Movies</p>
+        <MovieList
+          categoryFetch={recommendedMovies}
+          isLoading={isLoadingRecommended}
+          key="recommendedMovies"
+          similarId={movieDetails.id}
+        />
       </div>
     </div>
   );
