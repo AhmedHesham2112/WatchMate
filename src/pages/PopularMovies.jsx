@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import usePopularMovies from "../components/usePopularMovies";
 import MovieCard from "../components/MovieCard";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import Spinner from "../ui/Spinner";
 import Button from "../ui/Button";
 
@@ -9,7 +9,6 @@ function PopularMovies() {
   const [searchParams, setSearchParams] = useSearchParams();
   const page = parseInt(searchParams.get("page")) || 1; // Hook to manage query params
   const { isLoading, error, popularMovies } = usePopularMovies(page); // Pass page to the hook
-  const navigate = useNavigate();
 
   // Get the page from the query parameter or default to 1
 

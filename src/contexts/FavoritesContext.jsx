@@ -100,7 +100,6 @@ export function FavoritesProvider({ children }) {
   async function addFavorites(movie) {
     dispatch({ type: "loading" });
     try {
-      console.log(movie)
       const movie_data = { movie_id: movie.id, movie_genre: movie.genre_ids };
 
       const response = await apiAddToFavorites(movie_data);

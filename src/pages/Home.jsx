@@ -1,11 +1,16 @@
-import React from "react";
+import React, { useContext } from "react";
 import MovieList from "../components/MovieList";
 import usePopularMovies from "../components/usePopularMovies";
 import useTopRatedMovies from "../components/useTopRatedMovies";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Header from "../ui/Header";
+import { AuthContext } from "../contexts/AuthContext";
+import { useWatchlist } from "../contexts/WatchlistContext";
+import RecommendedList from "../components/RecommendedList";
 
 function Home() {
+  const { authState } = useContext(AuthContext);
+  const { isUserVerified } = useWatchlist();
   const { isLoading: isLoadingPopular, popularMovies } = usePopularMovies();
   const { isLoading: isLoadingTopRated, topRatedMovies } = useTopRatedMovies();
 
@@ -28,6 +33,11 @@ function Home() {
         isLoading={isLoadingTopRated}
         key="topRatedMovies"
       />
+      {authState.isAuthenticated && isUserVerified && (
+      
+          <RecommendedList />
+        
+      )}
     </div>
   );
 }
