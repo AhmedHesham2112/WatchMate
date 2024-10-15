@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import useMovieDetails from "./useMovieDetails";
 import { useParams } from "react-router-dom";
 import Spinner from "../ui/Spinner";
@@ -8,6 +8,7 @@ import { AuthContext } from "../contexts/AuthContext";
 import { FaHeart, FaRegHeart, FaBookmark, FaRegBookmark } from "react-icons/fa";
 import MovieList from "./MovieList";
 import useRecommendedMovies from "./useRecommendedMovies";
+import { fetchProviders } from "../services/apiMovies";
 
 function MovieDetails() {
   const { authState } = useContext(AuthContext);
@@ -32,6 +33,30 @@ function MovieDetails() {
     : "";
   const { isLoading: isLoadingRecommended, recommendedMovies } =
     useRecommendedMovies(genres);
+
+  const [watchProvider, setWatchProvider] = useState("");
+  const [isProviderLoading, setIsProviderLoading] = useState(false);
+
+  useEffect(() => {
+    async function getProviders() {
+      try {
+        setIsProviderLoading(true);
+        if (movieDetails && movieDetails.id) {
+          const res = await fetchProviders(movieDetails.id);
+          const provider =
+            res.results.US?.buy?.[0] ||
+            res.results.US?.flatrate?.[0] ||
+            res.results.US?.rent?.[0];
+          if (provider) setWatchProvider(provider);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsProviderLoading(false);
+      }
+    }
+    getProviders();
+  }, [movieDetails]);
 
   const isInWatchlist = movieDetails
     ? watchlist.some((toWatch) => toWatch.id === movieDetails.id)
@@ -80,6 +105,19 @@ function MovieDetails() {
           <span className="font-semibold">Genres: </span>
           {movieDetails.genres.map((genre) => genre.name).join(", ")}
         </p>
+        {watchProvider !== "" ? (
+          <div className="">
+            {isProviderLoading && <Spinner />}
+            <span className="text-lg font-semibold">Watch Provider: </span>
+            <img
+              src={`https://media.themoviedb.org/t/p/original${watchProvider.logo_path}`}
+              className="m-2 inline-block h-8 w-8"
+            />
+            <span> {watchProvider.provider_name} </span>
+          </div>
+        ) : (
+          ""
+        )}
 
         {authState.isAuthenticated && isUserVerified && (
           <div className="mt-4 flex justify-between">
