@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:9000";
+const API_URL = import.meta.env.VITE_API_URL;
 
 const getAccessToken = () => {
   return localStorage.getItem("access_token");
@@ -18,12 +18,13 @@ const refreshAccessToken = async () => {
     },
     // Send refresh token to refresh endpoint
   });
-
-  if (response.access_token) {
+  console.log(response);
+  if (response.ok) {
     const data = await response.json();
+    console.log(data)
     localStorage.setItem("access_token", data.access_token);
     localStorage.setItem("refresh_token", data.access_token); // Update access token
-    return data.accessToken; // Return the new access token
+    return data.access_token; // Return the new access token
   } else {
     // Handle the error, possibly logging out the user if the refresh fails
     console.error("Failed to refresh token.");

@@ -44,8 +44,8 @@ function MovieDetails() {
         if (movieDetails && movieDetails.id) {
           const res = await fetchProviders(movieDetails.id);
           const provider =
-            res.results.US?.buy?.[0] ||
             res.results.US?.flatrate?.[0] ||
+            res.results.US?.buy?.[0] ||
             res.results.US?.rent?.[0];
           if (provider) setWatchProvider(provider);
         }
