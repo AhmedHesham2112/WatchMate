@@ -3,7 +3,7 @@ const options = {
   headers: {
     accept: "application/json",
     Authorization:
-      "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIzYTMzOWYyMjU2MDlmOGZiYjI4YWQ3YzZlYjBmMTczYSIsIm5iZiI6MTcyNzgwNzE2OC43NTgxMjcsInN1YiI6IjY2ZjMwODE3YTk3ODgwMTQ4ZjNiOWI2MCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.9cnPkFkVJkVcbK0fQBfh3eMYQNV9NB_4kmrJWQG5tm8",
+      import.meta.env.VITE_API_KEY
   },
 };
 

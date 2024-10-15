@@ -81,7 +81,6 @@ def register():
         return jsonify({"message": "User with this Email already exists"}), 201
     token = s.dumps(data['email'], salt='email-confirm')
     confirm_url = f"{app.config['BASE_URL']}{url_for('confirm_email', token=token)}"
-    print(os.getenv('SMTP_EMAIL'))
     msg = Message('Account Confirmation Email', recipients=[data['email']])
     # msg.html = render_template_string('''
     #     <p>Welcome to WatchMate!</p>
@@ -101,7 +100,6 @@ def register():
 def login():
     data = request.get_json()
     user = Users.query.filter_by(email = data['email']).first()
-    print(data)
     if user.password_hash and check_password_hash(user.password_hash, data['password']):
         access_token = create_access_token(identity=user.email)
         refresh_token = create_refresh_token(identity=user.email)
@@ -154,9 +152,7 @@ def confirm_email(token):
 @jwt_required(refresh=True)
 def refresh():
     current_user_id = get_jwt_identity()
-    print(current_user_id)
     new_access_token = create_access_token(identity=current_user_id)
-    print(new_access_token)
     return jsonify({'access_token':new_access_token}), 200
     
 @app.route("/atf", methods=['POST'])
@@ -165,14 +161,12 @@ def add_to_fav():
     data = request.get_json()
     user_email = get_jwt_identity()
     user = Users.query.filter_by(email=user_email).first()
-    print("hellooooooooooooo",data)
     if user:
         if user.verified == 0:
             return jsonify({"message": "User not verified"}), 200
         if user.favorite_movie_ids is None:
             user.favorite_movie_ids = []
         movie_id = data['movie_id']
-        print("hellooooooooooooo",data['movie_genre'])
         movie_genres = data['movie_genre']
         movie_data = [movie_id,movie_genres]
         
@@ -315,13 +309,8 @@ def get_recommendations():
             return jsonify({"message": "User doesn't have any saved movies"}), 200
         elif len(user.favorite_movie_ids) > 0:
             all_numbers = [num for _, inner_list in user.favorite_movie_ids for num in inner_list]
-
             counter = Counter(all_numbers)
-
             most_common_two = [item for item, _ in counter.most_common(2)]
-
-            # Output the result
-            print(most_common_two)
             return jsonify({"message": "Success", "result" : most_common_two}), 200
     else:
         return jsonify({"message": "User not found"}), 404
