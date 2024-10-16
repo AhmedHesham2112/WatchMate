@@ -20,18 +20,6 @@ from dotenv import load_dotenv
 load_dotenv(dotenv_path='../.env')
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your-secret-key'
-app.config['JWT_SECRET_KEY'] = 'your-jwt-secret-key'
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)  # Set token expiry
-app.config['MAIL_SERVER'] = 'smtp.sendgrid.net'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True  # Use TLS for port 587
-app.config['MAIL_USE_SSL'] = False  # SSL should be False for port 587
-app.config['MAIL_USERNAME'] = 'apikey'
-app.config['MAIL_PASSWORD'] = os.getenv('SMTP_PASSWORD')
-app.config['MAIL_DEBUG '] = True
-app.config['MAIL_DEFAULT_SENDER'] = os.getenv('SMTP_EMAIL')
-app.config['BASE_URL'] = os.getenv('BASE_URL')
 app.config.from_object(Config)
 jwt = JWTManager(app)
 db = SQLAlchemy(app)

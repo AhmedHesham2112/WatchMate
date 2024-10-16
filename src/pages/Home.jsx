@@ -17,6 +17,11 @@ function Home() {
   return (
     <div className="w-full px-4">
       <Header />
+      {authState.isAuthenticated && isUserVerified && (
+
+        <RecommendedList />
+
+      )}
       <Link className="m-4 text-xl font-semibold" to="/popularmovies">
         Popular Movies
       </Link>
@@ -33,11 +38,7 @@ function Home() {
         isLoading={isLoadingTopRated}
         key="topRatedMovies"
       />
-      {authState.isAuthenticated && isUserVerified && (
-      
-          <RecommendedList />
-        
-      )}
+
     </div>
   );
 }
