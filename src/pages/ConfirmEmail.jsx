@@ -10,7 +10,7 @@ const ConfirmEmail = () => {
     const confirmEmail = async () => {
       try {
         const response = await fetch(
-          `http://localhost:9000/confirm_email/${token}`,
+          `${import.meta.env.VITE_API_URL}/confirm_email/${token}`,
           {
             method: "GET", // or 'POST' if your backend expects it that way
             headers: {
