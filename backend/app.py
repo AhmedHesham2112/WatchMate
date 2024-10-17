@@ -77,13 +77,12 @@ def register():
     message = Mail(
     from_email=app.config['MAIL_DEFAULT_SENDER'],
     to_emails=data['email'],
-    subject='Sending with Twilio SendGrid is Fun',
-    html_content="<strong>Hello "+data['first_name']+",\n\n Please confirm your email by clicking on the following link: {confirm_url}'</strong>")
+    subject='Account Confirmation Email',
+    html_content="<strong>Hello " + data['first_name'] + ",</strong><br><br>"
+    "Please confirm your email by clicking "
+    "<a href='{confirm_url}'>here</a>.".format(confirm_url=confirm_url))
     sg = SendGridAPIClient(app.config['MAIL_PASSWORD'])
     response = sg.send(message)
-    print(response.status_code)
-    print(response.body)
-    print(response.headers)
     hashed_password = generate_password_hash(data['password'], method='pbkdf2:sha256')
     users = Users(first_name = data['first_name'], last_name = data['last_name'], email = data['email'], password_hash = hashed_password, verified = False)
     db.session.add(users)
@@ -114,9 +113,14 @@ def resend_confirmation():
     if user and not user.verified:
         token = s.dumps(user.email, salt='email-confirm')
         confirm_url = f"{app.config['BASE_URL']}{url_for('confirm_email', token=token)}"
-        msg = Message('Account Confirmation Email', recipients=[user_email])
-        msg.body = f"Hello {user.first_name},\n\n Please confirm your email by clicking on the following link: {confirm_url}"
-        mail.send(msg)
+        message = Mail(from_email=app.config['MAIL_DEFAULT_SENDER'],
+        to_emails=user_email,subject='Account Reconfirmation Email',
+        html_content="<strong>Hello " + user.first_name + ",</strong><br><br>"
+    "Please confirm your email by clicking "
+    "<a href='{confirm_url}'>here</a>."
+    .format(confirm_url=confirm_url))
+        sg = SendGridAPIClient(app.config['MAIL_PASSWORD'])
+        response = sg.send(message)
         return jsonify({"message": "Confirmation email resent."}), 200
 
     return jsonify({"message": "User not found or already verified."}), 404
