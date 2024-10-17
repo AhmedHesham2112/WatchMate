@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, flash, redirect, url_for
+from flask import Flask, request, jsonify, flash, redirect, url_for, render_template, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager, UserMixin, login_user, current_user, logout_user, login_required
@@ -10,25 +10,27 @@ from datetime import timedelta
 import os
 from flask import render_template_string
 from collections import Counter
-
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_mail import Mail, Message
+#from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired
 from sqlalchemy import not_, desc, JSON
 from sqlalchemy.ext.mutable import MutableList
 from dotenv import load_dotenv
 load_dotenv(dotenv_path='../.env')
 
-app = Flask(__name__)
+app = Flask(__name__,static_folder="../dist/static", template_folder="../dist")
 app.config.from_object(Config)
 jwt = JWTManager(app)
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
-mail = Mail(app)
+#mail = Mail(app)
 s = URLSafeTimedSerializer(app.config['SECRET_KEY'])
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 login_manager.login_message_category = 'info'
+print(app.config['SECRET_KEY'])
 CORS(app)
 
 @app.before_request
@@ -59,7 +61,10 @@ class Users(db.Model, UserMixin):
 @login_manager.user_loader
 def load_user(user_id):
     return Users.query.get(int(user_id))
-
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def catch_all(path):
+    return render_template("index.html")
 
 @app.route("/register", methods = ['POST'])
 def register():
@@ -69,14 +74,16 @@ def register():
         return jsonify({"message": "User with this Email already exists"}), 201
     token = s.dumps(data['email'], salt='email-confirm')
     confirm_url = f"{app.config['BASE_URL']}{url_for('confirm_email', token=token)}"
-    msg = Message('Account Confirmation Email', recipients=[data['email']])
-    # msg.html = render_template_string('''
-    #     <p>Welcome to WatchMate!</p>
-    #     <p>To confirm your account, please click <a href="{confirm_url}">here</a>.</p>
-    #     <p>Thank you!</p>
-    # ''')
-    msg.body = f"Hello {data['first_name']},\n\n Please confirm your email by clicking on the following link: {confirm_url}"
-    mail.send(msg)
+    message = Mail(
+    from_email=app.config['MAIL_DEFAULT_SENDER'],
+    to_emails=data['email'],
+    subject='Sending with Twilio SendGrid is Fun',
+    html_content="<strong>Hello "+data['first_name']+",\n\n Please confirm your email by clicking on the following link: {confirm_url}'</strong>")
+    sg = SendGridAPIClient(app.config['MAIL_PASSWORD'])
+    response = sg.send(message)
+    print(response.status_code)
+    print(response.body)
+    print(response.headers)
     hashed_password = generate_password_hash(data['password'], method='pbkdf2:sha256')
     users = Users(first_name = data['first_name'], last_name = data['last_name'], email = data['email'], password_hash = hashed_password, verified = False)
     db.session.add(users)
@@ -114,7 +121,7 @@ def resend_confirmation():
 
     return jsonify({"message": "User not found or already verified."}), 404
 
-@app.route('/confirm_email/<token>')
+@app.route('/confirm_email_gate/<token>')
 def confirm_email(token):
     try:
         # Verify the token and get the user's email
